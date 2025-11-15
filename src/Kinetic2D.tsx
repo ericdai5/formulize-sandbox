@@ -5,7 +5,6 @@ import {
   FormulizeProvider,
   VisualizationComponent,
   type FormulizeConfig,
-  type IVariable,
 } from "formulize-math";
 
 const kineticConfig: FormulizeConfig = {
@@ -14,9 +13,9 @@ const kineticConfig: FormulizeConfig = {
       formulaId: "kinetic-energy",
       latex: "K = \\frac{1}{2}mv^2",
       expression: "{K} = 0.5 * {m} * {v} * {v}",
-      manual: function (variables: Record<string, IVariable>) {
-        const m = variables.m.value ?? 0;
-        const v = variables.v.value ?? 0;
+      manual: function (vars) {
+        const m = vars.m;
+        const v = vars.v;
         return 0.5 * m * Math.pow(v, 2);
       },
     },
@@ -68,9 +67,9 @@ const kineticConfig: FormulizeConfig = {
 export const Kinetic2DExample: React.FC = () => {
   return (
     <FormulizeProvider config={kineticConfig}>
-      <div className="example-description mb-4">
+      <div className="mb-4">
         <h2 className="text-2xl font-bold mb-2">Kinetic Energy</h2>
-        <p className="text-gray-700 leading-relaxed">
+        <p className="text-blue-700 leading-relaxed">
           Kinetic energy is the energy possessed by an object due to its motion.
           The formula shows that kinetic energy is directly proportional to the
           mass of the object and the square of its velocity. This means that
@@ -79,14 +78,14 @@ export const Kinetic2DExample: React.FC = () => {
           a moving object has.
         </p>
       </div>
-      <div className="formulize-example grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
-        <div className="formula-section">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
+        <div>
           <FormulaComponent
             formulaId="kinetic-energy"
             style={{ height: "200px" }}
           />
         </div>
-        <div className="visualization-section">
+        <div>
           {kineticConfig.visualizations && kineticConfig.visualizations[0] && (
             <VisualizationComponent
               type="plot2d"
