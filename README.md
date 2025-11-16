@@ -71,3 +71,4 @@ export default defineConfig([
   },
 ])
 ```
+# Updated to formulize-math@0.1.13 (no emotion)
