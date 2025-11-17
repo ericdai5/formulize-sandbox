@@ -10,7 +10,7 @@ import {
 const kineticConfig: FormulizeConfig = {
   formulas: [
     {
-      formulaId: "kinetic-energy",
+      id: "kinetic-energy",
       latex: "K = \\frac{1}{2}mv^2",
       expression: "{K} = 0.5 * {m} * {v} * {v}",
       manual: function (vars) {
@@ -80,10 +80,7 @@ export const Kinetic2DExample: React.FC = () => {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
         <div>
-          <FormulaComponent
-            formulaId="kinetic-energy"
-            style={{ height: "200px" }}
-          />
+          <FormulaComponent id="kinetic-energy" style={{ height: "200px" }} />
         </div>
         <div>
           {kineticConfig.visualizations && kineticConfig.visualizations[0] && (
