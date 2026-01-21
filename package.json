@@ -22,7 +22,7 @@
     "better-react-mathjax": "^2.3.0",
     "codemirror": "^6.0.2",
     "d3": "^7.9.0",
-    "formulize-math": "^0.1.28",
+    "formulize-math": "^0.1.29",
     "js-interpreter": "^6.0.1",
     "katex": "^0.16.27",
     "lodash": "^4.17.21",

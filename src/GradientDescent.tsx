@@ -1,164 +1,110 @@
+import React from "react";
+
 import {
   FormulaComponent,
   FormulizeProvider,
-  InlineFormula,
   InlineVariable,
   InterpreterControl,
+  VisualizationComponent,
   type FormulizeConfig,
+  type IPlot2D,
   view,
 } from "formulize-math";
 
-// Configuration for the loss function
-const lossConfig: FormulizeConfig = {
+const combinedPlotConfig: IPlot2D = {
+  type: "plot2d",
+  id: "loss-gradient-plot",
+  title: "Loss & Gradient vs Weight",
+  xAxis: "w_t",
+  xRange: [-0.5, 2.5],
+  yAxis: "L", // Primary y-axis (used as default)
+  yRange: [-5, 10], // Extended to show both loss (0-25) and gradient (-15 to 15)
+  xAxisPos: "center", // Center x-axis at y=0 so gradient line crosses it
+  yAxisPos: "edge",
+  xGrid: "show",
+  yGrid: "show",
+  width: 560,
+  height: 400,
+  lines: [
+    {
+      color: "#ef4444", // Red for loss (parabola)
+      lineWidth: 2.5,
+      name: "loss-function",
+      yAxis: "L",
+    },
+    {
+      color: "#f97316", // Orange for gradient (linear)
+      lineWidth: 2.5,
+      name: "gradient",
+      yAxis: "\\nabla L",
+    },
+  ],
+  // Add step points when specific views are active
+  stepPoints: {
+    "weight-update": {
+      xValue: "w_t",
+      yValue: "L",
+      persistence: true,
+      color: "#3b82f6", // Blue
+      size: 6,
+      label: "wₜ",
+    },
+  },
+};
+
+const gradientDescentConfig: FormulizeConfig = {
   formulas: [
     {
       id: "loss-function",
-      latex: "L(w) = (y - w \\cdot x)^2",
+      latex: "L = (y - w_t \\cdot x)^2",
     },
-  ],
-  variables: {
-    "L(w)": {
-      role: "computed",
-      name: "Loss",
-      precision: 4,
-    },
-    w: {
-      role: "input",
-      default: 0.5,
-      range: [-2, 4],
-      step: 0.1,
-      name: "Weight",
-      precision: 4,
-    },
-    x: {
-      role: "input",
-      default: 1.5,
-      range: [0.1, 3],
-      step: 0.1,
-      name: "Input Feature",
-      precision: 2,
-    },
-    y: {
-      role: "input",
-      default: 3,
-      range: [0, 5],
-      step: 0.1,
-      name: "Target Value",
-      precision: 2,
-    },
-  },
-  semantics: {
-    engine: "manual",
-    mode: "step",
-    manual: function (vars) {
-      var x = vars.x;
-      var y = vars.y;
-      var w = vars.w;
-      view("Get input feature x:", x, "x");
-      view("Get target value y:", y, "y");
-      view("Get weight w:", w, "w");
-      var prediction = w * x;
-      view("Compute prediction w·x:", prediction, "w \\cdot x");
-      var error = y - prediction;
-      view("Compute error (y - w·x):", error, "y - w \\cdot x");
-      var loss = error * error;
-      view("Square the error to get loss:", loss, "(y - w \\cdot x)^2");
-      view("Final loss L(w):", loss, "L(w)");
-      return loss;
-    },
-  },
-  fontSize: 1.4,
-};
-
-// Configuration for the gradient
-const gradientConfig: FormulizeConfig = {
-  formulas: [
     {
       id: "gradient",
-      latex: "\\nabla L = -2x(y - w \\cdot x)",
+      latex: "\\nabla L = -2x(y - w_t \\cdot x)",
     },
-  ],
-  variables: {
-    "\\nabla L": {
-      role: "computed",
-      name: "Gradient",
-      precision: 4,
-    },
-    w: {
-      role: "input",
-      default: 0.5,
-      range: [-2, 4],
-      step: 0.1,
-      name: "Weight",
-      precision: 4,
-    },
-    x: {
-      role: "input",
-      default: 1.5,
-      range: [0.1, 3],
-      step: 0.1,
-      name: "Input Feature",
-      precision: 2,
-    },
-    y: {
-      role: "input",
-      default: 3,
-      range: [0, 5],
-      step: 0.1,
-      name: "Target Value",
-      precision: 2,
-    },
-  },
-  semantics: {
-    engine: "manual",
-    mode: "step",
-    manual: function (vars) {
-      var x = vars.x;
-      var y = vars.y;
-      var w = vars.w;
-      view("Get input feature x:", x, "x");
-      view("Get target value y:", y, "y");
-      view("Get weight w:", w, "w");
-      var prediction = w * x;
-      view("Compute prediction w·x:", prediction, "w \\cdot x");
-      var error = y - prediction;
-      view("Compute error (y - w·x):", error, "y - w \\cdot x");
-      var gradient = -2 * x * error;
-      view("Compute gradient -2x(y - w·x):", gradient, "-2x(y - w \\cdot x)");
-      view("Final gradient ∇L:", gradient, "\\nabla L");
-      return gradient;
-    },
-  },
-  fontSize: 1.4,
-};
-
-// Configuration for the update rule with step-through execution
-const updateRuleConfig: FormulizeConfig = {
-  formulas: [
     {
       id: "update-rule",
       latex: "w_{t+1} = w_t - \\alpha \\cdot \\nabla L",
     },
   ],
   variables: {
+    // Index variable t (iteration number)
+    t: {
+      role: "index",
+      name: "Iteration",
+      default: 0,
+      precision: 0,
+      latexDisplay: "value",
+    },
+    // t+1 index for the next weight
+    "t+1": {
+      role: "index",
+      name: "Next Iteration",
+      default: 1,
+      precision: 0,
+      latexDisplay: "value",
+    },
+    // Loss and Gradient (computed at current w_t)
+    L: { role: "computed", name: "Loss", precision: 4 },
+    "\\nabla L": { role: "computed", name: "Gradient", precision: 4 },
+    // Current weight w_t (input, user can adjust starting point)
     w_t: {
       role: "input",
-      default: 0.1,
-      range: [-2, 4],
-      step: 0.1,
-      name: "Initial Weight",
-      precision: 4,
+      default: 0.5,
+      range: [-1, 4],
+      step: 0.05,
+      name: "Current Weight",
+      precision: 3,
+      index: "t", // Specify that 't' is the index variable within this expression
     },
+    // Next weight w_{t+1} (computed)
     "w_{t+1}": {
       role: "computed",
       name: "Next Weight",
       precision: 4,
+      index: "t+1", // Specify that 't+1' is the index variable within this expression
     },
-    "\\nabla L": {
-      role: "computed",
-      name: "Gradient",
-      precision: 4,
-    },
+    // Learning rate
     "\\alpha": {
       role: "input",
       default: 0.1,
@@ -167,177 +113,152 @@ const updateRuleConfig: FormulizeConfig = {
       name: "Learning Rate",
       precision: 3,
     },
+    // Data inputs
     x: {
       role: "input",
       default: 1.5,
-      range: [0.1, 3],
+      range: [0.5, 3],
       step: 0.1,
-      name: "Input Feature",
+      name: "Input Feature x",
       precision: 2,
     },
     y: {
       role: "input",
       default: 3,
-      range: [0, 5],
+      range: [1, 5],
       step: 0.1,
-      name: "Target Value",
+      name: "Target Value y",
       precision: 2,
-    },
-    t: {
-      role: "index",
-      default: 0,
-      name: "Step",
-      precision: 0,
     },
   },
   semantics: {
     engine: "manual",
     mode: "step",
+    variableLinkage: {
+      w_t_plus_1: "w_{t+1}",
+      nablaL: "\\nabla L",
+      L: "L",
+      t: "t",
+    },
+    // Expressions are used by Plot2D to evaluate curves
+    expressions: {
+      "loss-function": "{L} = ({y} - {w_t} * {x})^2",
+      gradient: "{\\nabla L} = -2 * {x} * ({y} - {w_t} * {x})",
+      "update-rule": "{w_{t+1}} = {w_t} - {\\alpha} * {\\nabla L}",
+    },
     manual: function (vars) {
       var x = vars.x;
       var y = vars.y;
       var alpha = vars["\\alpha"];
-      var w = vars.w_t;
-
-      view("Get current weight w_t:", w, "w_t");
-      view("Get learning rate α:", alpha, "\\alpha");
-      view("Get input feature x:", x);
-      view("Get target value y:", y);
-
-      // Compute prediction and error
-      var prediction = w * x;
-      view("Compute prediction w·x:", prediction);
-      var error = y - prediction;
-      view("Compute error (y - w·x):", error);
-
-      // Compute gradient: ∇L = -2x(y - w·x)
-      var gradient = -2 * x * error;
-      view("Compute gradient ∇L = -2x(y - w·x):", gradient, "\\nabla L");
-
-      // Compute α·∇L term
-      var stepSize = alpha * gradient;
-      view("Compute step size α·∇L:", stepSize, "\\alpha \\cdot \\nabla L");
-
-      // Compute new weight: w_{t+1} = w_t - α·∇L
-      var wNew = w - stepSize;
-      view(
-        "Compute new weight w_t - α·∇L:",
-        wNew,
-        "w_t - \\alpha \\cdot \\nabla L"
-      );
-      view("Final result w_{t+1}:", wNew, "w_{t+1}");
-
-      return wNew;
+      var w_t = vars.w_t;
+      var numIterations = 6;
+      var t_plus_1 = vars["t+1"];
+      for (var t = 0; t < numIterations; t++) {
+        t_plus_1 = t_plus_1 + 0;
+        t_plus_1 = t + 1;
+        var prediction = w_t * x;
+        var error = y - prediction;
+        view("$Error = y - prediction = " + error + "$", {
+          value: error,
+          formulaId: "loss-function",
+        });
+        var L = error * error;
+        view("$Error^2$", { value: L, formulaId: "loss-function" });
+        var nablaL = -2 * x * error;
+        view("$-2x \\cdot Error =$", {
+          value: nablaL,
+          expression: "-2x(y - w_t \\cdot x)",
+          formulaId: "gradient",
+        });
+        var step = alpha * nablaL;
+        view("Step = $\\alpha \\cdot \\nabla L$:", {
+          value: step,
+          expression: "\\alpha \\cdot \\nabla L",
+          formulaId: "update-rule",
+        });
+        var w_t_plus_1 = w_t - step;
+        view("The next iteration of weight value will be:", {
+          id: "weight-update",
+          value: w_t_plus_1,
+          formulaId: "update-rule",
+          expression: "w_{t+1} = w_t - \\alpha \\cdot \\nabla L",
+        });
+        w_t = w_t_plus_1;
+      }
+      // Summary
+      view("Final weight after " + numIterations + " iterations:", {
+        value: w_t,
+      });
+      return w_t;
     },
   },
-  fontSize: 1.4,
+  // Add visualizations to the config
+  visualizations: [combinedPlotConfig],
+  fontSize: 1.3,
 };
 
-// Section component for each formula with its explanation
-const FormulaSection: React.FC<{
-  config: FormulizeConfig;
-  title: string;
-  description: React.ReactNode;
-  formulaId: string;
-  showInterpreter?: boolean;
-}> = ({ config, title, description, formulaId, showInterpreter = false }) => {
+const GradientDescentContent: React.FC = () => {
   return (
-    <FormulizeProvider config={config}>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-3">{title}</h3>
-        <div className="prose max-w-none text-gray-600 mb-4">{description}</div>
-        <FormulaComponent id={formulaId} style={{ height: "350px" }} />
-        {showInterpreter && (
-          <div className="mt-4">
-            <InterpreterControl
-              environment={config}
-              width="100%"
-              defaultCollapsed={false}
-            />
-          </div>
-        )}
-      </div>
-    </FormulizeProvider>
-  );
-};
-
-// Main component
-export const GradientDescentExample: React.FC = () => {
-  return (
-    <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen">
-      <header className="mb-8">
+    <div className="max-w-6xl mx-auto min-h-screen">
+      <header className="mb-8 text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Gradient Descent Step-by-Step
         </h1>
-        <p className="text-gray-600 text-lg">
-          Understand how gradient descent finds minima by exploring the
-          relationship between the mathematical update rule and the actual path
-          taken on a loss surface.
+        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <InlineVariable id="\alpha" display="both" /> is the learning rate,{" "}
+          <InlineVariable id="x" display="both" /> is the input feature, and{" "}
+          <InlineVariable id="y" display="both" /> is the target value.
         </p>
       </header>
-
-      {/* Loss Function Section */}
-      <FormulaSection
-        config={lossConfig}
-        title="1. The Loss Function"
-        formulaId="loss-function"
-        description={
-          <p>
-            The <strong>loss function</strong> measures how far our prediction
-            is from the target. Given an input feature{" "}
-            <InlineVariable id="x" display="both" /> and a target value{" "}
-            <InlineVariable id="y" display="both" />, we compute the squared
-            error between the prediction{" "}
-            <InlineFormula id="loss-function" scale={0.85} /> and the actual
-            target. The weight <InlineVariable id="w" display="both" /> controls
-            our prediction, and our goal is to find the value of{" "}
-            <InlineVariable id="w" display="symbol" /> that minimizes this loss.
-          </p>
-        }
-      />
-
-      {/* Gradient Section */}
-      <FormulaSection
-        config={gradientConfig}
-        title="2. The Gradient"
-        formulaId="gradient"
-        description={
-          <p>
-            The <strong>gradient</strong>{" "}
-            <InlineVariable id="\\nabla L" display="symbol" /> tells us the
-            direction and magnitude of steepest ascent on the loss surface. By
-            taking the derivative of the loss function with respect to the
-            weight <InlineVariable id="w" display="symbol" />, we get{" "}
-            <InlineFormula id="gradient" scale={0.85} />. When the gradient is
-            positive, increasing <InlineVariable id="w" display="symbol" />{" "}
-            increases loss; when negative, increasing{" "}
-            <InlineVariable id="w" display="symbol" /> decreases loss.
-          </p>
-        }
-      />
-
-      {/* Update Rule Section with Step-Through */}
-      <FormulaSection
-        config={updateRuleConfig}
-        title="3. The Update Rule"
-        formulaId="update-rule"
-        showInterpreter={true}
-        description={
-          <p>
-            The <strong>update rule</strong> is the heart of gradient descent.
-            We update the weight by moving in the opposite direction of the
-            gradient, scaled by the learning rate{" "}
-            <InlineVariable id="\\alpha" display="both" />. A larger learning
-            rate means bigger steps (faster but potentially unstable), while a
-            smaller learning rate means smaller steps (slower but more stable).
-            Starting from initial weight{" "}
-            <InlineVariable id="w_t" display="both" />, watch how the
-            optimization converges to the optimal weight{" "}
-            <InlineVariable id="w_{t+1}" display="symbol" />.
-          </p>
-        }
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <FormulaComponent
+            id="loss-function"
+            style={{ height: "200px", flex: 1 }}
+          />
+          <FormulaComponent
+            id="gradient"
+            style={{ height: "200px", flex: 1 }}
+          />
+          <FormulaComponent
+            id="update-rule"
+            style={{ height: "200px", flex: 1 }}
+          />
+        </div>
+        <div className="space-y-4">
+          <VisualizationComponent
+            type="plot2d"
+            config={combinedPlotConfig}
+            style={{ width: "100%", height: "500px" }}
+          />
+          <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-600">
+            <div className="flex items-center justify-around">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-0.5 bg-red-500" />
+                <span>Loss L (parabola)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-0.5 bg-orange-500" />
+                <span>Gradient ∇L (line)</span>
+              </div>
+            </div>
+          </div>
+          <InterpreterControl
+            environment={gradientDescentConfig}
+            width="100%"
+            defaultCollapsed={false}
+          />
+        </div>
+      </div>
     </div>
+  );
+};
+
+export const GradientDescentExample: React.FC = () => {
+  return (
+    <FormulizeProvider config={gradientDescentConfig}>
+      <GradientDescentContent />
+    </FormulizeProvider>
   );
 };
 
