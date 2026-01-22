@@ -165,19 +165,19 @@ const gradientDescentConfig: FormulizeConfig = {
         var L = error * error;
         view("$Error^2$", { value: L, formulaId: "loss-function" });
         var nablaL = -2 * x * error;
-        view("$-2x \\cdot Error =$", {
+        view("$-2x \\cdot Error =" + nablaL + "$", {
           value: nablaL,
           expression: "-2x(y - w_t \\cdot x)",
           formulaId: "gradient",
         });
         var step = alpha * nablaL;
-        view("Step = $\\alpha \\cdot \\nabla L$:", {
+        view("Calculating step: $" + step + "$", {
           value: step,
           expression: "\\alpha \\cdot \\nabla L",
           formulaId: "update-rule",
         });
         var w_t_plus_1 = w_t - step;
-        view("The next iteration of weight value will be:", {
+        view("Calculated next iteration of weight", {
           id: "weight-update",
           value: w_t_plus_1,
           formulaId: "update-rule",
@@ -188,6 +188,7 @@ const gradientDescentConfig: FormulizeConfig = {
       // Summary
       view("Final weight after " + numIterations + " iterations:", {
         value: w_t,
+        formulaId: "update-rule",
       });
       return w_t;
     },
@@ -246,7 +247,7 @@ const GradientDescentContent: React.FC = () => {
           <InterpreterControl
             environment={gradientDescentConfig}
             width="100%"
-            defaultCollapsed={false}
+            defaultCollapsed={true}
           />
         </div>
       </div>

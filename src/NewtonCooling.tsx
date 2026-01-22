@@ -10,45 +10,125 @@ import {
   register,
 } from "formulize-math";
 
-// Helper function to create a thermometer SVG with dynamic temperature display
-const createThermometerSVG = (color: string) => {
-  // The thermometer will be animated based on the actual value via CSS
+// Dynamic thermometer SVG generator functions that respond to variable values
+// Similar to jsGeneratedSVG.ts pattern - each function receives ctx with ctx.value
+
+// Helper function to get color based on temperature (0-100°C range)
+// Cold (0°C) = blue, warm (50°C) = orange, hot (100°C) = red
+function getTemperatureColor(temp: number): string {
+  const normalizedTemp = Math.max(0, Math.min(100, temp)) / 100;
+
+  // Color stops: blue (0°C) -> cyan (25°C) -> yellow (50°C) -> orange (75°C) -> red (100°C)
+  if (normalizedTemp < 0.25) {
+    // Blue to cyan
+    const t = normalizedTemp / 0.25;
+    const r = Math.round(52 + t * (0 - 52));
+    const g = Math.round(152 + t * (188 - 152));
+    const b = Math.round(219 + t * (212 - 219));
+    return `rgb(${r},${g},${b})`;
+  } else if (normalizedTemp < 0.5) {
+    // Cyan to yellow
+    const t = (normalizedTemp - 0.25) / 0.25;
+    const r = Math.round(0 + t * 241);
+    const g = Math.round(188 + t * (196 - 188));
+    const b = Math.round(212 + t * (15 - 212));
+    return `rgb(${r},${g},${b})`;
+  } else if (normalizedTemp < 0.75) {
+    // Yellow to orange
+    const t = (normalizedTemp - 0.5) / 0.25;
+    const r = Math.round(241 + t * (230 - 241));
+    const g = Math.round(196 + t * (126 - 196));
+    const b = Math.round(15 + t * (34 - 15));
+    return `rgb(${r},${g},${b})`;
+  } else {
+    // Orange to red
+    const t = (normalizedTemp - 0.75) / 0.25;
+    const r = Math.round(230 + t * (231 - 230));
+    const g = Math.round(126 + t * (76 - 126));
+    const b = Math.round(34 + t * (60 - 34));
+    return `rgb(${r},${g},${b})`;
+  }
+}
+
+// Generate a unique ID from temperature for SVG gradients
+function getTempColorId(temp: number): string {
+  return `temp-${Math.round(temp * 10)}`;
+}
+
+// Reusable thermometer SVG generator (0-100°C range)
+function createThermometerSvg(
+  temp: number,
+  idSuffix: string = ""
+): string {
+  const color = getTemperatureColor(temp);
+  const colorId = getTempColorId(temp) + idSuffix;
+  // Normalize temperature to 0-100 range, then to mercury height (max 46px)
+  const normalizedTemp = Math.max(0, Math.min(100, temp)) / 100;
+  const mercuryHeight = Math.max(4, normalizedTemp * 46);
+  const mercuryY = 56 - mercuryHeight; // Bottom of tube is at y=56
+
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 80">
-    <!-- Thermometer body -->
     <defs>
-      <linearGradient id="tempGradient-${color.replace(
-        "#",
-        ""
-      )}" x1="0%" y1="100%" x2="0%" y2="0%">
+      <linearGradient id="tempGradient-${colorId}" x1="0%" y1="100%" x2="0%" y2="0%">
         <stop offset="0%" style="stop-color:${color};stop-opacity:1" />
         <stop offset="100%" style="stop-color:#ffeaa7;stop-opacity:1" />
       </linearGradient>
-      <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <linearGradient id="glassGradient${idSuffix}" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.6" />
         <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0.2" />
         <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.4" />
       </linearGradient>
     </defs>
-    <!-- Glass tube background -->
     <rect x="11" y="8" width="10" height="50" rx="5" fill="#e8e8e8" stroke="#999" stroke-width="1"/>
-    <!-- Mercury column (height will be styled via CSS) -->
-    <rect class="mercury-column" x="13" y="10" width="6" height="46" rx="3" fill="url(#tempGradient-${color.replace(
-      "#",
-      ""
-    )})"/>
-    <!-- Bulb at bottom -->
+    <rect x="13" y="${mercuryY.toFixed(1)}" width="6" height="${mercuryHeight.toFixed(1)}" rx="3" fill="url(#tempGradient-${colorId})"/>
     <circle cx="16" cy="65" r="9" fill="${color}" stroke="#999" stroke-width="1"/>
     <circle cx="14" cy="63" r="2" fill="rgba(255,255,255,0.5)"/>
-    <!-- Glass reflection -->
-    <rect x="12" y="8" width="3" height="50" rx="1.5" fill="url(#glassGradient)"/>
-    <!-- Temperature scale marks -->
+    <rect x="12" y="8" width="3" height="50" rx="1.5" fill="url(#glassGradient${idSuffix})"/>
     <line x1="22" y1="12" x2="26" y2="12" stroke="#666" stroke-width="1"/>
     <line x1="22" y1="22" x2="25" y2="22" stroke="#666" stroke-width="0.5"/>
     <line x1="22" y1="32" x2="26" y2="32" stroke="#666" stroke-width="1"/>
     <line x1="22" y1="42" x2="25" y2="42" stroke="#666" stroke-width="0.5"/>
     <line x1="22" y1="52" x2="26" y2="52" stroke="#666" stroke-width="1"/>
   </svg>`;
-};
+}
+
+// T(t) - Current temperature thermometer
+const currentTempSvg = (ctx: { value?: unknown }) =>
+  createThermometerSvg(typeof ctx.value === "number" ? ctx.value : 50, "");
+
+// T_0 - Initial temperature thermometer
+const initialTempSvg = (ctx: { value?: unknown }) =>
+  createThermometerSvg(typeof ctx.value === "number" ? ctx.value : 90, "-init");
+
+// T_env - Environment temperature thermometer
+const envTempSvg = (ctx: { value?: unknown }) =>
+  createThermometerSvg(typeof ctx.value === "number" ? ctx.value : 22, "-env");
+
+// t - Time stopwatch with rotating hand based on time value
+function timeSvg(ctx: { value?: unknown }) {
+  const time = typeof ctx.value === "number" ? ctx.value : 0;
+  // Calculate rotation: 360 degrees per 60 units (like seconds on a clock)
+  const rotation = (time % 60) * 6;
+  // Calculate hand end position
+  const handLength = 5.5;
+  const radians = (rotation - 90) * (Math.PI / 180);
+  const handX = 12 + Math.cos(radians) * handLength;
+  const handY = 13 + Math.sin(radians) * handLength;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <circle cx="12" cy="13" r="9" fill="#2c3e50" stroke="#34495e" stroke-width="1.5"/>
+    <circle cx="12" cy="13" r="7.5" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="0.5"/>
+    <rect x="10.5" y="1" width="3" height="4" rx="1" fill="#34495e"/>
+    <line x1="12" y1="6.5" x2="12" y2="8" stroke="#2c3e50" stroke-width="0.8"/>
+    <line x1="12" y1="18" x2="12" y2="19.5" stroke="#2c3e50" stroke-width="0.8"/>
+    <line x1="5.5" y1="13" x2="7" y2="13" stroke="#2c3e50" stroke-width="0.8"/>
+    <line x1="17" y1="13" x2="18.5" y2="13" stroke="#2c3e50" stroke-width="0.8"/>
+    <line x1="12" y1="13" x2="${handX.toFixed(2)}" y2="${handY.toFixed(
+    2
+  )}" stroke="#e74c3c" stroke-width="1" stroke-linecap="round"/>
+    <circle cx="12" cy="13" r="1" fill="#c0392b"/>
+  </svg>`;
+}
 
 // Stopwatch custom visualization component
 interface StopwatchVisualizationProps {
@@ -124,41 +204,17 @@ const StopwatchVisualization: React.FC<StopwatchVisualizationProps> = ({
   const minuteHandRotation = (displayTime / 60) * 6;
 
   return (
-    <div className="flex flex-col items-center gap-4 p-4 bg-white rounded-xl shadow-lg border border-gray-200">
+    <div className="flex flex-col items-center gap-4 p-4">
       <div className="text-gray-600 font-mono text-xs uppercase tracking-widest">
         Elapsed Time
       </div>
-
       {/* Stopwatch SVG */}
       <svg
         width="160"
-        height="180"
+        height="160"
         viewBox="0 0 160 180"
         className="drop-shadow-lg"
       >
-        {/* Top button */}
-        <rect
-          x="72"
-          y="2"
-          width="16"
-          height="16"
-          rx="3"
-          fill="#444"
-          stroke="#666"
-          strokeWidth="1"
-        />
-        <rect x="75" y="5" width="10" height="6" rx="2" fill="#333" />
-
-        {/* Ring attachment */}
-        <circle
-          cx="80"
-          cy="8"
-          r="6"
-          fill="none"
-          stroke="#888"
-          strokeWidth="2"
-        />
-
         {/* Watch body */}
         <defs>
           <radialGradient id="watchFace" cx="50%" cy="30%" r="60%">
@@ -171,7 +227,6 @@ const StopwatchVisualization: React.FC<StopwatchVisualizationProps> = ({
             <stop offset="100%" stopColor="#8b7355" />
           </radialGradient>
         </defs>
-
         {/* Outer bezel */}
         <circle
           cx="80"
@@ -181,7 +236,6 @@ const StopwatchVisualization: React.FC<StopwatchVisualizationProps> = ({
           stroke="#5a4a2a"
           strokeWidth="2"
         />
-
         {/* Inner bezel */}
         <circle
           cx="80"
@@ -201,7 +255,6 @@ const StopwatchVisualization: React.FC<StopwatchVisualizationProps> = ({
           stroke="#ccc"
           strokeWidth="1"
         />
-
         {/* Minute markers */}
         {Array.from({ length: 60 }).map((_, i) => {
           const angle = (i * 6 - 90) * (Math.PI / 180);
@@ -220,7 +273,6 @@ const StopwatchVisualization: React.FC<StopwatchVisualizationProps> = ({
             />
           );
         })}
-
         {/* Numbers */}
         {[0, 10, 20, 30, 40, 50].map((num) => {
           const angle = (num * 6 - 90) * (Math.PI / 180);
@@ -240,7 +292,6 @@ const StopwatchVisualization: React.FC<StopwatchVisualizationProps> = ({
             </text>
           );
         })}
-
         {/* Minute hand (longer, shows total minutes) */}
         <line
           x1="80"
@@ -251,7 +302,6 @@ const StopwatchVisualization: React.FC<StopwatchVisualizationProps> = ({
           strokeWidth="3"
           strokeLinecap="round"
         />
-
         {/* Second hand (main hand) */}
         <line
           x1="80"
@@ -262,7 +312,6 @@ const StopwatchVisualization: React.FC<StopwatchVisualizationProps> = ({
           strokeWidth="2"
           strokeLinecap="round"
         />
-
         {/* Center cap */}
         <circle
           cx="80"
@@ -273,7 +322,6 @@ const StopwatchVisualization: React.FC<StopwatchVisualizationProps> = ({
           strokeWidth="1"
         />
         <circle cx="80" cy="100" r="2" fill="#c0392b" />
-
         {/* Digital display */}
         <rect
           x="55"
@@ -297,7 +345,6 @@ const StopwatchVisualization: React.FC<StopwatchVisualizationProps> = ({
           {displayTime.toFixed(1)}
         </text>
       </svg>
-
       {/* Controls */}
       <div className="flex gap-2">
         {!isRunning ? (
@@ -341,10 +388,6 @@ const StopwatchVisualization: React.FC<StopwatchVisualizationProps> = ({
           Reset
         </button>
       </div>
-
-      <div className="text-gray-500 text-xs text-center max-w-[180px]">
-        Drag the time variable or use the stopwatch to explore cooling over time
-      </div>
     </div>
   );
 };
@@ -367,52 +410,37 @@ const newtonCoolingConfig: FormulizeConfig = {
   variables: {
     "T(t)": {
       role: "computed",
-      name: "Current Temperature",
+      name: "Current",
       units: "°C",
       precision: 1,
-      svgContent: createThermometerSVG("#e74c3c"),
-      svgMode: "replace",
-      defaultCSS: `
-        .mercury-column { 
-          transform-origin: bottom;
-          transform: scaleY(calc(0.1 + 0.9 * {value} / 100));
-        }
-      `,
+      svgContent: currentTempSvg,
+      labelDisplay: "svg",
+      svgSize: { width: 32, height: 80 },
     },
     T_0: {
       role: "input",
       default: 90,
       range: [50, 100],
       step: 1,
-      name: "Initial Temperature",
+      name: "Initial",
       units: "°C",
       precision: 0,
-      svgContent: createThermometerSVG("#e67e22"),
-      svgMode: "replace",
+      svgContent: initialTempSvg,
+      labelDisplay: "svg",
+      svgSize: { width: 32, height: 80 },
       memberOf: "T(t)",
-      defaultCSS: `
-        .mercury-column { 
-          transform-origin: bottom;
-          transform: scaleY(calc(0.5 + 0.5 * ({value} - 50) / 50));
-        }
-      `,
     },
-    T_env: {
+    "T_{env}": {
       role: "input",
       default: 22,
       range: [0, 40],
       step: 1,
-      name: "Environment Temperature",
+      name: "Environment",
       units: "°C",
       precision: 0,
-      svgContent: createThermometerSVG("#3498db"),
-      svgMode: "replace",
-      defaultCSS: `
-        .mercury-column { 
-          transform-origin: bottom;
-          transform: scaleY(calc(0.1 + 0.9 * {value} / 40));
-        }
-      `,
+      svgContent: envTempSvg,
+      labelDisplay: "svg",
+      svgSize: { width: 32, height: 80 },
     },
     k: {
       role: "input",
@@ -422,7 +450,6 @@ const newtonCoolingConfig: FormulizeConfig = {
       name: "Cooling Constant",
       units: "1/min",
       precision: 3,
-      latexDisplay: "name",
     },
     t: {
       role: "input",
@@ -432,35 +459,15 @@ const newtonCoolingConfig: FormulizeConfig = {
       name: "Time",
       units: "min",
       precision: 1,
-      latexDisplay: "value",
-      svgContent: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <!-- Stopwatch icon -->
-        <circle cx="12" cy="13" r="9" fill="#2c3e50" stroke="#34495e" stroke-width="1.5"/>
-        <circle cx="12" cy="13" r="7.5" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="0.5"/>
-        <!-- Top button -->
-        <rect x="10.5" y="1" width="3" height="4" rx="1" fill="#34495e"/>
-        <!-- Hour markers -->
-        <line x1="12" y1="6.5" x2="12" y2="8" stroke="#2c3e50" stroke-width="0.8"/>
-        <line x1="12" y1="18" x2="12" y2="19.5" stroke="#2c3e50" stroke-width="0.8"/>
-        <line x1="5.5" y1="13" x2="7" y2="13" stroke="#2c3e50" stroke-width="0.8"/>
-        <line x1="17" y1="13" x2="18.5" y2="13" stroke="#2c3e50" stroke-width="0.8"/>
-        <!-- Hands -->
-        <line x1="12" y1="13" x2="12" y2="7.5" stroke="#e74c3c" stroke-width="1" stroke-linecap="round">
-          <animateTransform attributeName="transform" type="rotate" from="0 12 13" to="360 12 13" dur="4s" repeatCount="indefinite"/>
-        </line>
-        <circle cx="12" cy="13" r="1" fill="#c0392b"/>
-      </svg>`,
-      svgMode: "replace",
+      svgContent: timeSvg,
+      labelDisplay: "svg",
+      svgSize: { width: 40, height: 40 },
     },
   },
   semantics: {
     engine: "manual",
-    expressions: {
-      "newton-cooling":
-        "{T(t)} = {T_env} + ({T_0} - {T_env}) * exp(-{k} * {t})",
-    },
     manual: function (vars) {
-      const T_env = vars.T_env;
+      const T_env = vars["T_{env}"];
       const T_0 = vars.T_0;
       const k = vars.k;
       const t = vars.t;
@@ -476,6 +483,8 @@ const newtonCoolingConfig: FormulizeConfig = {
       yAxis: "T(t)",
       yRange: [0, 100],
       yGrid: "show",
+      height: 360,
+      width: 360,
       lines: [
         {
           color: "#e74c3c",
@@ -510,7 +519,6 @@ export const NewtonCoolingExample: React.FC = () => {
             room temperature.
           </p>
         </header>
-
         <FormulizeProvider config={newtonCoolingConfig}>
           <div className="space-y-8">
             {/* Main explanation card */}
@@ -527,7 +535,7 @@ export const NewtonCoolingExample: React.FC = () => {
                   from an initial temperature{" "}
                   <InlineVariable id="T_0" display="withUnits" />, the object
                   approaches the environment temperature{" "}
-                  <InlineVariable id="T_env" display="withUnits" /> at a rate
+                  <InlineVariable id="T_{env}" display="withUnits" /> at a rate
                   determined by the cooling constant{" "}
                   <InlineVariable id="k" display="withUnits" />.
                 </p>
@@ -541,88 +549,27 @@ export const NewtonCoolingExample: React.FC = () => {
                 </p>
               </div>
             </div>
-
-            {/* Main visualization grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Formula component */}
-              <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                <FormulaComponent
-                  id="newton-cooling"
-                  style={{ height: "280px" }}
+            <div className="flex flex-row gap-4">
+              <FormulaComponent
+                id="newton-cooling"
+                style={{ width: "500px", height: "500px" }}
+              />
+              {newtonCoolingConfig.visualizations && (
+                <VisualizationComponent
+                  type="custom"
+                  config={newtonCoolingConfig.visualizations[1]}
+                  style={{ width: "240px", height: "500px" }}
                 />
-              </div>
-              {/* Stopwatch */}
-              <div className="flex items-center justify-center">
-                {newtonCoolingConfig.visualizations && (
-                  <VisualizationComponent
-                    type="custom"
-                    config={newtonCoolingConfig.visualizations[1]}
-                  />
-                )}
-              </div>
-            </div>
-
-            {/* Temperature vs Time Plot */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                Temperature Over Time
-              </h3>
-              <p className="text-gray-500 text-sm mb-4">
-                Watch how the temperature curve approaches the horizontal
-                asymptote at <InlineVariable id="T_env" display="withUnits" />.
-                The dashed blue line shows the environment temperature that the
-                object will eventually reach.
-              </p>
-              {newtonCoolingConfig.visualizations &&
-                newtonCoolingConfig.visualizations[0] && (
-                  <VisualizationComponent
-                    type="plot2d"
-                    config={newtonCoolingConfig.visualizations[0]}
-                    height={350}
-                  />
-                )}
-            </div>
-
-            {/* Parameter explanation cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-red-50 rounded-xl border border-red-200 p-4">
-                <div className="text-red-600 font-semibold mb-2 flex items-center gap-2">
-                  🌡️ T(t)
-                </div>
-                <p className="text-gray-600 text-sm">
-                  The current temperature of the object at time t. Watch it
-                  decrease as time passes.
-                </p>
-              </div>
-
-              <div className="bg-orange-50 rounded-xl border border-orange-200 p-4">
-                <div className="text-orange-600 font-semibold mb-2 flex items-center gap-2">
-                  🔥 T₀
-                </div>
-                <p className="text-gray-600 text-sm">
-                  Initial temperature. Try setting this high (like fresh coffee
-                  at 90°C) to see rapid early cooling.
-                </p>
-              </div>
-
-              <div className="bg-blue-50 rounded-xl border border-blue-200 p-4">
-                <div className="text-blue-600 font-semibold mb-2 flex items-center gap-2">
-                  ❄️ T_env
-                </div>
-                <p className="text-gray-600 text-sm">
-                  Environment (room) temperature. This is the asymptote—the
-                  object can never cool below this.
-                </p>
-              </div>
-
-              <div className="bg-purple-50 rounded-xl border border-purple-200 p-4">
-                <div className="text-purple-600 font-semibold mb-2 flex items-center gap-2">
-                  ⚡ k
-                </div>
-                <p className="text-gray-600 text-sm">
-                  Cooling constant. Higher values mean faster cooling (better
-                  heat transfer, like metal vs. ceramic).
-                </p>
+              )}
+              {/* Temperature vs Time Plot */}
+              <div className="flex flex-col gap-6 w-96">
+                {newtonCoolingConfig.visualizations &&
+                  newtonCoolingConfig.visualizations[0] && (
+                    <VisualizationComponent
+                      type="plot2d"
+                      config={newtonCoolingConfig.visualizations[0]}
+                    />
+                  )}
               </div>
             </div>
           </div>
