@@ -1,7 +1,7 @@
 import React from "react";
 
 import {
-  FormulaComponent,
+  Formula,
   FormulizeProvider,
   VisualizationComponent,
   InlineFormula,
@@ -116,7 +116,6 @@ const radioactiveDecayConfig: FormulizeConfig = {
       precision: 0,
       units: "atoms",
       latexDisplay: "name",
-      memberOf: "N",
       defaultCSS: "filter: drop-shadow(0 0 8px #7FFF00) saturate(1);",
       hoverCSS: "filter: drop-shadow(0 0 12px #00FF00); transform: scale(1.1);",
     },
@@ -211,7 +210,7 @@ export const Kinetic2DExample: React.FC = () => {
             quadruples the energy, while doubling mass only doubles it.
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
-            <FormulaComponent
+            <Formula
               id="kinetic-energy"
               style={{ height: "200px", width: "300px" }}
             />
@@ -244,10 +243,7 @@ export const Kinetic2DExample: React.FC = () => {
             <InlineVariable id="\\lambda" display="withUnits" />.
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
-            <FormulaComponent
-              id="radioactive-decay"
-              style={{ height: "250px" }}
-            />
+            <Formula id="radioactive-decay" style={{ height: "250px" }} />
             {radioactiveDecayConfig.visualizations &&
               radioactiveDecayConfig.visualizations[0] && (
                 <VisualizationComponent

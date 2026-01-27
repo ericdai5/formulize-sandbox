@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  FormulaComponent,
+  Formula,
   FormulizeProvider,
   InterpreterControl,
   view,
@@ -26,7 +26,6 @@ const config1: FormulizeConfig = {
     },
     x: {
       role: "input",
-      memberOf: "X",
       precision: 0,
       name: "x: member of X",
       latexDisplay: "name",
@@ -65,23 +64,23 @@ const config1: FormulizeConfig = {
         var xi = xValues[i];
         var probability = pxValues[i];
         if (i === 0) {
-          view("Get a value x from X:", { value: xi });
-          view("Get a value P(x) from P(x):", { value: probability });
+          view("Get a value x from X:", [["x", xi]]);
+          view("Get a value P(x) from P(x):", [["P(x)", probability]]);
         }
         var currExpected = Math.round(xi * probability * 100) / 100;
         if (i === 0) {
-          view("This evaluates to:", { value: currExpected });
+          view("This evaluates to:", [["c", currExpected]]);
         }
         expectedValue = Math.round((expectedValue + currExpected) * 100) / 100;
         switch (i) {
           case 0:
-            view("add up term into E:", { value: expectedValue });
+            view("add up term into E:", [["E", expectedValue]]);
             break;
           case 1:
-            view("add next term...", { value: expectedValue });
+            view("add next term...", [["E", expectedValue]]);
             break;
           case xValues.length - 1:
-            view("finish accumulating weighted sum:", { value: expectedValue });
+            view("finish accumulating weighted sum:", [["E", expectedValue]]);
             break;
         }
       }
@@ -109,7 +108,7 @@ const config2: FormulizeConfig = {
       labelDisplay: "value",
     },
     i: {
-      role: "index",
+      role: "input",
       precision: 0,
       name: "index i",
       latexDisplay: "name",
@@ -122,7 +121,6 @@ const config2: FormulizeConfig = {
     },
     a_i: {
       role: "input",
-      index: "i",
       default: [2, 4, 6, 8, 10],
       precision: 0,
       name: "a_i",
@@ -138,9 +136,9 @@ const config2: FormulizeConfig = {
       var values = vars.a_i;
       for (var i = 0; i < values.length; i++) {
         var a = values[i];
-        view("Current element:", { value: a });
+        view("Current element:", [["a_i", a]]);
         sum = sum + a;
-        view("Running sum:", { value: sum });
+        view("Running sum:", [["S", sum]]);
       }
       return sum;
     },
@@ -154,7 +152,6 @@ const MinimalSummation: React.FC = () => {
       <h1 className="text-2xl font-bold text-slate-800">
         Multiple Independent Formulize Interpreters
       </h1>
-
       {/* First Formulize Provider - Expected Value */}
       <div className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
         <h2 className="text-lg font-semibold text-blue-800 mb-4">
@@ -162,15 +159,14 @@ const MinimalSummation: React.FC = () => {
         </h2>
         <FormulizeProvider config={config1}>
           <div className="flex flex-col gap-4">
-            <FormulaComponent
+            <Formula
               id="summation-basic"
               style={{ height: "300px", width: "700px" }}
             />
-            <InterpreterControl environment={config1} width={700} />
+            <InterpreterControl width={700} />
           </div>
         </FormulizeProvider>
       </div>
-
       {/* Second Formulize Provider - Simple Sum */}
       <div className="border-2 border-green-200 rounded-lg p-4 bg-green-50">
         <h2 className="text-lg font-semibold text-green-800 mb-4">
@@ -178,11 +174,11 @@ const MinimalSummation: React.FC = () => {
         </h2>
         <FormulizeProvider config={config2}>
           <div className="flex flex-col gap-4">
-            <FormulaComponent
+            <Formula
               id="sum-basic"
               style={{ height: "300px", width: "700px" }}
             />
-            <InterpreterControl environment={config2} width={700} />
+            <InterpreterControl width={700} />
           </div>
         </FormulizeProvider>
       </div>

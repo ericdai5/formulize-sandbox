@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import {
-  FormulaComponent,
+  Formula,
   FormulizeProvider,
   VisualizationComponent,
   InlineVariable,
@@ -109,8 +109,8 @@ const NeuralNetworkViz: React.FC<NeuralNetworkVizProps> = ({ context }) => {
             layerIdx === 0
               ? "input"
               : layerIdx === layers.length - 1
-              ? "output"
-              : "hidden",
+                ? "output"
+                : "hidden",
           variableId,
           formulaId,
         });
@@ -145,8 +145,8 @@ const NeuralNetworkViz: React.FC<NeuralNetworkVizProps> = ({ context }) => {
           weight > 0.05
             ? COLORS.edgePositive
             : weight < -0.05
-            ? COLORS.edgeNegative
-            : COLORS.edgeNeutral;
+              ? COLORS.edgeNegative
+              : COLORS.edgeNeutral;
         const width = Math.max(0.5, Math.min(Math.abs(weight) * 2, 3));
 
         edges.push({
@@ -292,8 +292,8 @@ const NeuralNetworkViz: React.FC<NeuralNetworkVizProps> = ({ context }) => {
             i === 0
               ? "Input"
               : i === layers.length - 1
-              ? "Output"
-              : `Hidden ${i}`;
+                ? "Output"
+                : `Hidden ${i}`;
           return (
             <text
               key={i}
@@ -351,7 +351,7 @@ function generateNeuralNetwork(layers: number[]) {
           step: 0.05,
           precision: 2,
         },
-      ]
+      ],
     );
     Object.assign(variables, weights);
 
@@ -420,7 +420,7 @@ function generateNeuralNetwork(layers: number[]) {
 export const NeuralNetworkExample: React.FC = () => {
   const { formulas, variables, manual } = useMemo(
     () => generateNeuralNetwork(LAYERS),
-    []
+    [],
   );
 
   const config: FormulizeConfig = useMemo(
@@ -438,12 +438,12 @@ export const NeuralNetworkExample: React.FC = () => {
         },
       ],
     }),
-    [formulas, variables, manual]
+    [formulas, variables, manual],
   );
 
   const totalWeights = LAYERS.slice(1).reduce(
     (sum, n, i) => sum + n * LAYERS[i],
-    0
+    0,
   );
   const totalBiases = LAYERS.slice(1).reduce((sum, n) => sum + n, 0);
 
@@ -567,7 +567,7 @@ export const NeuralNetworkExample: React.FC = () => {
         </div>
 
         <div className="my-8 bg-gray-50 rounded-xl p-4 border">
-          <FormulaComponent
+          <Formula
             id="formula_h_1_1"
             style={{ height: "280px", width: "100%" }}
           />

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  FormulaComponent,
+  Formula,
   FormulizeProvider,
   InlineFormula,
   InlineVariable,
@@ -56,10 +56,7 @@ function getTempColorId(temp: number): string {
 }
 
 // Reusable thermometer SVG generator (0-100°C range)
-function createThermometerSvg(
-  temp: number,
-  idSuffix: string = ""
-): string {
+function createThermometerSvg(temp: number, idSuffix: string = ""): string {
   const color = getTemperatureColor(temp);
   const colorId = getTempColorId(temp) + idSuffix;
   // Normalize temperature to 0-100 range, then to mercury height (max 46px)
@@ -124,8 +121,8 @@ function timeSvg(ctx: { value?: unknown }) {
     <line x1="5.5" y1="13" x2="7" y2="13" stroke="#2c3e50" stroke-width="0.8"/>
     <line x1="17" y1="13" x2="18.5" y2="13" stroke="#2c3e50" stroke-width="0.8"/>
     <line x1="12" y1="13" x2="${handX.toFixed(2)}" y2="${handY.toFixed(
-    2
-  )}" stroke="#e74c3c" stroke-width="1" stroke-linecap="round"/>
+      2,
+    )}" stroke="#e74c3c" stroke-width="1" stroke-linecap="round"/>
     <circle cx="12" cy="13" r="1" fill="#c0392b"/>
   </svg>`;
 }
@@ -428,7 +425,6 @@ const newtonCoolingConfig: FormulizeConfig = {
       svgContent: initialTempSvg,
       labelDisplay: "svg",
       svgSize: { width: 32, height: 80 },
-      memberOf: "T(t)",
     },
     "T_{env}": {
       role: "input",
@@ -550,7 +546,7 @@ export const NewtonCoolingExample: React.FC = () => {
               </div>
             </div>
             <div className="flex flex-row gap-4">
-              <FormulaComponent
+              <Formula
                 id="newton-cooling"
                 style={{ width: "500px", height: "500px" }}
               />

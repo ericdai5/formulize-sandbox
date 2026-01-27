@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import {
-  FormulaComponent,
+  Formula,
   FormulizeProvider,
   InlineFormula,
   InlineVariable,
@@ -27,7 +27,7 @@ interface RacePosition {
  * Variables t_1...t_6 contain tortoise ranks, h_1...h_6 contain hare ranks
  */
 function variablesToRaceOrder(
-  getVariable: (name: string) => number
+  getVariable: (name: string) => number,
 ): RacePosition[] {
   const positions: RacePosition[] = [];
 
@@ -58,7 +58,7 @@ function variablesToRaceOrder(
  * Returns null if the race order is invalid (duplicate ranks)
  */
 function raceOrderToVariables(
-  raceOrder: RacePosition[]
+  raceOrder: RacePosition[],
 ): { tortoiseRanks: number[]; hareRanks: number[] } | null {
   const tortoiseRanks: number[] = [];
   const hareRanks: number[] = [];
@@ -122,7 +122,7 @@ const RaceOrderVisualizationInner: React.FC<{ context: IContext }> = ({
     (name: string): number => {
       return context.getVariable(name) ?? 0;
     },
-    [context]
+    [context],
   );
 
   // Sync from context variables to visualization state
@@ -155,7 +155,7 @@ const RaceOrderVisualizationInner: React.FC<{ context: IContext }> = ({
         context.updateVariable(`h_${i + 1}`, rank);
       });
     },
-    [context]
+    [context],
   );
 
   // Handle drag start
@@ -263,10 +263,10 @@ const RaceOrderVisualizationInner: React.FC<{ context: IContext }> = ({
               {pos.position === 1
                 ? "st"
                 : pos.position === 2
-                ? "nd"
-                : pos.position === 3
-                ? "rd"
-                : "th"}
+                  ? "nd"
+                  : pos.position === 3
+                    ? "rd"
+                    : "th"}
             </div>
           </div>
         ))}
@@ -618,8 +618,8 @@ export const MannWhitneyExample: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 gap-6 my-8">
-          <FormulaComponent id="r1-sum" style={{ height: "180px" }} />
-          <FormulaComponent id="r2-sum" style={{ height: "180px" }} />
+          <Formula id="r1-sum" style={{ height: "180px" }} />
+          <Formula id="r2-sum" style={{ height: "180px" }} />
         </div>
 
         <div className="max-w-none text-lg text-gray-700 leading-relaxed">
@@ -649,11 +649,11 @@ export const MannWhitneyExample: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 my-8">
-          <FormulaComponent id="u1-formula" style={{ height: "200px" }} />
-          <FormulaComponent id="u2-formula" style={{ height: "200px" }} />
+          <Formula id="u1-formula" style={{ height: "200px" }} />
+          <Formula id="u2-formula" style={{ height: "200px" }} />
         </div>
         <div className="mb-8">
-          <FormulaComponent id="u-final" style={{ height: "150px" }} />
+          <Formula id="u-final" style={{ height: "150px" }} />
         </div>
 
         <div className="max-w-none text-lg text-gray-700 leading-relaxed">
@@ -676,11 +676,11 @@ export const MannWhitneyExample: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 my-8">
-          <FormulaComponent id="mu-u" style={{ height: "180px" }} />
-          <FormulaComponent id="sigma-u" style={{ height: "180px" }} />
+          <Formula id="mu-u" style={{ height: "180px" }} />
+          <Formula id="sigma-u" style={{ height: "180px" }} />
         </div>
         <div className="mb-8">
-          <FormulaComponent id="z-score" style={{ height: "180px" }} />
+          <Formula id="z-score" style={{ height: "180px" }} />
         </div>
 
         <div className="max-w-none text-lg text-gray-700 leading-relaxed">

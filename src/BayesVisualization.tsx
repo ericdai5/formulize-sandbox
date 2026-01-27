@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as d3 from "d3";
 
 import {
-  FormulaComponent,
+  Formula,
   FormulizeProvider,
   InlineFormula,
   InlineVariable,
@@ -711,17 +711,11 @@ export const BayesVisualizationExample: React.FC = () => {
           {/* Formulas Column */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold mb-2">Key Formulas</h3>
-            <FormulaComponent id="bayes-theorem" style={{ height: "120px" }} />
-            <FormulaComponent
-              id="conditional-probability"
-              style={{ height: "120px" }}
-            />
-            <FormulaComponent id="a-and-not-b" style={{ height: "100px" }} />
-            <FormulaComponent id="b-and-not-a" style={{ height: "100px" }} />
-            <FormulaComponent
-              id="not-a-and-not-b"
-              style={{ height: "100px" }}
-            />
+            <Formula id="bayes-theorem" style={{ height: "120px" }} />
+            <Formula id="conditional-probability" style={{ height: "120px" }} />
+            <Formula id="a-and-not-b" style={{ height: "100px" }} />
+            <Formula id="b-and-not-a" style={{ height: "100px" }} />
+            <Formula id="not-a-and-not-b" style={{ height: "100px" }} />
           </div>
 
           {/* Visualization Column */}

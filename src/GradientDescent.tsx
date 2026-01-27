@@ -1,7 +1,7 @@
 import React from "react";
 
 import {
-  FormulaComponent,
+  Formula,
   FormulizeProvider,
   InlineVariable,
   InterpreterControl,
@@ -70,19 +70,17 @@ const gradientDescentConfig: FormulizeConfig = {
   variables: {
     // Index variable t (iteration number)
     t: {
-      role: "index",
+      role: "input",
       name: "Iteration",
       default: 0,
       precision: 0,
-      latexDisplay: "value",
     },
     // t+1 index for the next weight
     "t+1": {
-      role: "index",
+      role: "input",
       name: "Next Iteration",
       default: 1,
       precision: 0,
-      latexDisplay: "value",
     },
     // Loss and Gradient (computed at current w_t)
     L: { role: "computed", name: "Loss", precision: 4 },
@@ -95,14 +93,12 @@ const gradientDescentConfig: FormulizeConfig = {
       step: 0.05,
       name: "Current Weight",
       precision: 3,
-      index: "t", // Specify that 't' is the index variable within this expression
     },
     // Next weight w_{t+1} (computed)
     "w_{t+1}": {
       role: "computed",
       name: "Next Weight",
       precision: 4,
-      index: "t+1", // Specify that 't+1' is the index variable within this expression
     },
     // Learning rate
     "\\alpha": {
@@ -134,12 +130,6 @@ const gradientDescentConfig: FormulizeConfig = {
   semantics: {
     engine: "manual",
     mode: "step",
-    variableLinkage: {
-      w_t_plus_1: "w_{t+1}",
-      nablaL: "\\nabla L",
-      L: "L",
-      t: "t",
-    },
     // Expressions are used by Plot2D to evaluate curves
     expressions: {
       "loss-function": "{L} = ({y} - {w_t} * {x})^2",
@@ -152,44 +142,64 @@ const gradientDescentConfig: FormulizeConfig = {
       var alpha = vars["\\alpha"];
       var w_t = vars.w_t;
       var numIterations = 6;
-      var t_plus_1 = vars["t+1"];
       for (var t = 0; t < numIterations; t++) {
-        t_plus_1 = t_plus_1 + 0;
-        t_plus_1 = t + 1;
+        var t_plus_1 = t + 1;
         var prediction = w_t * x;
         var error = y - prediction;
-        view("$Error = y - prediction = " + error + "$", {
-          value: error,
+        view(
+          "$Error = y - prediction = " + error + "$",
+          [
+            ["y", y],
+            ["w_t", w_t],
+            ["x", x],
+          ],
+          { formulaId: "loss-function" },
+        );
+        var L = error * error;
+        view("$Error^2 = " + L + "$", [["L", L]], {
           formulaId: "loss-function",
         });
-        var L = error * error;
-        view("$Error^2$", { value: L, formulaId: "loss-function" });
         var nablaL = -2 * x * error;
-        view("$-2x \\cdot Error =" + nablaL + "$", {
-          value: nablaL,
+        view("$-2x \\cdot Error = " + nablaL + "$", [["\\nabla L", nablaL]], {
           expression: "-2x(y - w_t \\cdot x)",
           formulaId: "gradient",
         });
         var step = alpha * nablaL;
-        view("Calculating step: $" + step + "$", {
-          value: step,
-          expression: "\\alpha \\cdot \\nabla L",
-          formulaId: "update-rule",
-        });
+        view(
+          "Calculating step: $\\alpha \\cdot \\nabla L = " + step + "$",
+          [
+            ["\\alpha", alpha],
+            ["\\nabla L", nablaL],
+          ],
+          { expression: "\\alpha \\cdot \\nabla L", formulaId: "update-rule" },
+        );
         var w_t_plus_1 = w_t - step;
-        view("Calculated next iteration of weight", {
-          id: "weight-update",
-          value: w_t_plus_1,
-          formulaId: "update-rule",
-          expression: "w_{t+1} = w_t - \\alpha \\cdot \\nabla L",
-        });
+        view(
+          "Calculated next weight $w_{t+1} = " + w_t_plus_1 + "$",
+          [
+            ["w_{t+1}", w_t_plus_1],
+            ["w_t", w_t],
+            ["t", t],
+            ["t+1", t_plus_1],
+          ],
+          {
+            id: "weight-update",
+            expression: "w_{t+1} = w_t - \\alpha \\cdot \\nabla L",
+            formulaId: "update-rule",
+          },
+        );
         w_t = w_t_plus_1;
       }
       // Summary
-      view("Final weight after " + numIterations + " iterations:", {
-        value: w_t,
-        formulaId: "update-rule",
-      });
+      view(
+        "Final weight after " +
+          numIterations +
+          " iterations: $w_t = " +
+          w_t +
+          "$",
+        [["w_t", w_t]],
+        { formulaId: "update-rule" },
+      );
       return w_t;
     },
   },
@@ -213,18 +223,9 @@ const GradientDescentContent: React.FC = () => {
       </header>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <FormulaComponent
-            id="loss-function"
-            style={{ height: "200px", flex: 1 }}
-          />
-          <FormulaComponent
-            id="gradient"
-            style={{ height: "200px", flex: 1 }}
-          />
-          <FormulaComponent
-            id="update-rule"
-            style={{ height: "200px", flex: 1 }}
-          />
+          <Formula id="loss-function" style={{ height: "200px", flex: 1 }} />
+          <Formula id="gradient" style={{ height: "200px", flex: 1 }} />
+          <Formula id="update-rule" style={{ height: "200px", flex: 1 }} />
         </div>
         <div className="space-y-4">
           <VisualizationComponent
@@ -244,11 +245,7 @@ const GradientDescentContent: React.FC = () => {
               </div>
             </div>
           </div>
-          <InterpreterControl
-            environment={gradientDescentConfig}
-            width="100%"
-            defaultCollapsed={true}
-          />
+          <InterpreterControl width="100%" defaultCollapsed={true} />
         </div>
       </div>
     </div>
