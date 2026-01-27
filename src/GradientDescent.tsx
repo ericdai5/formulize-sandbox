@@ -8,7 +8,7 @@ import {
   VisualizationComponent,
   type FormulizeConfig,
   type IPlot2D,
-  view,
+  step,
 } from "formulize-math";
 
 const combinedPlotConfig: IPlot2D = {
@@ -146,7 +146,7 @@ const gradientDescentConfig: FormulizeConfig = {
         var t_plus_1 = t + 1;
         var prediction = w_t * x;
         var error = y - prediction;
-        view(
+        step(
           "$Error = y - prediction = " + error + "$",
           [
             ["y", y],
@@ -156,25 +156,25 @@ const gradientDescentConfig: FormulizeConfig = {
           { formulaId: "loss-function" },
         );
         var L = error * error;
-        view("$Error^2 = " + L + "$", [["L", L]], {
+        step("$Error^2 = " + L + "$", [["L", L]], {
           formulaId: "loss-function",
         });
         var nablaL = -2 * x * error;
-        view("$-2x \\cdot Error = " + nablaL + "$", [["\\nabla L", nablaL]], {
+        step("$-2x \\cdot Error = " + nablaL + "$", [["\\nabla L", nablaL]], {
           expression: "-2x(y - w_t \\cdot x)",
           formulaId: "gradient",
         });
-        var step = alpha * nablaL;
-        view(
-          "Calculating step: $\\alpha \\cdot \\nabla L = " + step + "$",
+        var stepSize = alpha * nablaL;
+        step(
+          "Calculating step: $\\alpha \\cdot \\nabla L = " + stepSize + "$",
           [
             ["\\alpha", alpha],
             ["\\nabla L", nablaL],
           ],
           { expression: "\\alpha \\cdot \\nabla L", formulaId: "update-rule" },
         );
-        var w_t_plus_1 = w_t - step;
-        view(
+        var w_t_plus_1 = w_t - stepSize;
+        step(
           "Calculated next weight $w_{t+1} = " + w_t_plus_1 + "$",
           [
             ["w_{t+1}", w_t_plus_1],
@@ -191,7 +191,7 @@ const gradientDescentConfig: FormulizeConfig = {
         w_t = w_t_plus_1;
       }
       // Summary
-      view(
+      step(
         "Final weight after " +
           numIterations +
           " iterations: $w_t = " +

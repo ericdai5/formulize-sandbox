@@ -3,7 +3,7 @@ import {
   Formula,
   FormulizeProvider,
   InterpreterControl,
-  view,
+  step,
   type FormulizeConfig,
 } from "formulize-math";
 
@@ -64,23 +64,23 @@ const config1: FormulizeConfig = {
         var xi = xValues[i];
         var probability = pxValues[i];
         if (i === 0) {
-          view("Get a value x from X:", [["x", xi]]);
-          view("Get a value P(x) from P(x):", [["P(x)", probability]]);
+          step("Get a value x from X:", [["x", xi]]);
+          step("Get a value P(x) from P(x):", [["P(x)", probability]]);
         }
         var currExpected = Math.round(xi * probability * 100) / 100;
         if (i === 0) {
-          view("This evaluates to:", [["c", currExpected]]);
+          step("This evaluates to:", [["c", currExpected]]);
         }
         expectedValue = Math.round((expectedValue + currExpected) * 100) / 100;
         switch (i) {
           case 0:
-            view("add up term into E:", [["E", expectedValue]]);
+            step("add up term into E:", [["E", expectedValue]]);
             break;
           case 1:
-            view("add next term...", [["E", expectedValue]]);
+            step("add next term...", [["E", expectedValue]]);
             break;
           case xValues.length - 1:
-            view("finish accumulating weighted sum:", [["E", expectedValue]]);
+            step("finish accumulating weighted sum:", [["E", expectedValue]]);
             break;
         }
       }
@@ -136,9 +136,9 @@ const config2: FormulizeConfig = {
       var values = vars.a_i;
       for (var i = 0; i < values.length; i++) {
         var a = values[i];
-        view("Current element:", [["a_i", a]]);
+        step("Current element:", [["a_i", a]]);
         sum = sum + a;
-        view("Running sum:", [["S", sum]]);
+        step("Running sum:", [["S", sum]]);
       }
       return sum;
     },
