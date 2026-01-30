@@ -146,66 +146,100 @@ const gradientDescentConfig: FormulizeConfig = {
         var t_plus_1 = t + 1;
         var prediction = w_t * x;
         var error = y - prediction;
-        step(
-          "$Error = y - prediction = " + error + "$",
-          [
-            ["y", y],
-            ["w_t", w_t],
-            ["x", x],
-          ],
-          { formulaId: "loss-function" },
-        );
+        step({
+          "loss-function": {
+            description: "$Error = y - prediction = " + error.toFixed(2) + "$",
+            values: [
+              ["y", y],
+              ["w_t", w_t],
+              ["x", x],
+            ],
+          },
+        });
         var L = error * error;
-        step("$Error^2 = " + L + "$", [["L", L]], {
-          formulaId: "loss-function",
+        step({
+          "loss-function": {
+            description: "$Error^2 = " + L.toFixed(2) + "$",
+            values: [["L", L]],
+          },
         });
         var nablaL = -2 * x * error;
-        step("$-2x \\cdot Error = " + nablaL + "$", [["\\nabla L", nablaL]], {
-          expression: "-2x(y - w_t \\cdot x)",
-          formulaId: "gradient",
+        step({
+          "loss-function": {
+            description: "$Error = y - prediction = " + error.toFixed(2) + "$",
+            values: [
+              ["y", y],
+              ["w_t", w_t],
+              ["x", x],
+            ],
+          },
+          gradient: {
+            description:
+              "$-2 \\cdot " +
+              x.toFixed(2) +
+              " \\cdot " +
+              error.toFixed(2) +
+              " = " +
+              nablaL.toFixed(2) +
+              "$",
+            values: [["\\nabla L", nablaL]],
+            expression: "-2x(y - w_t \\cdot x)",
+          },
         });
         var stepSize = alpha * nablaL;
-        step(
-          "Calculating step: $\\alpha \\cdot \\nabla L = " + stepSize + "$",
-          [
-            ["\\alpha", alpha],
-            ["\\nabla L", nablaL],
-          ],
-          { expression: "\\alpha \\cdot \\nabla L", formulaId: "update-rule" },
-        );
+        step({
+          "update-rule": {
+            description:
+              "Calculating step: $\\alpha \\cdot \\nabla L = " +
+              stepSize.toFixed(2) +
+              "$",
+            values: [
+              ["\\alpha", alpha],
+              ["\\nabla L", nablaL],
+            ],
+            expression: "\\alpha \\cdot \\nabla L",
+          },
+        });
         var w_t_plus_1 = w_t - stepSize;
         step(
-          "Calculated next weight $w_{t+1} = " + w_t_plus_1 + "$",
-          [
-            ["w_{t+1}", w_t_plus_1],
-            ["w_t", w_t],
-            ["t", t],
-            ["t+1", t_plus_1],
-          ],
           {
-            id: "weight-update",
-            expression: "w_{t+1} = w_t - \\alpha \\cdot \\nabla L",
-            formulaId: "update-rule",
+            "update-rule": {
+              description:
+                "Calculated next weight $w_{t+1} = " +
+                w_t_plus_1.toFixed(2) +
+                "$",
+              values: [
+                ["w_{t+1}", w_t_plus_1],
+                ["w_t", w_t],
+                ["t", t],
+                ["t+1", t_plus_1],
+              ],
+              expression: "w_{t+1} = w_t - \\alpha \\cdot \\nabla L",
+            },
           },
+          "weight-update",
         );
         w_t = w_t_plus_1;
       }
       // Summary
-      step(
-        "Final weight after " +
-          numIterations +
-          " iterations: $w_t = " +
-          w_t +
-          "$",
-        [["w_t", w_t]],
-        { formulaId: "update-rule" },
-      );
+      step({
+        "update-rule": {
+          description:
+            "Final weight after " +
+            numIterations +
+            " iterations: $w_t = " +
+            w_t.toFixed(2) +
+            "$",
+          values: [["w_t", w_t]],
+        },
+      });
       return w_t;
     },
   },
   // Add visualizations to the config
   visualizations: [combinedPlotConfig],
   fontSize: 1.3,
+  labelFontSize: 1,
 };
 
 const GradientDescentContent: React.FC = () => {

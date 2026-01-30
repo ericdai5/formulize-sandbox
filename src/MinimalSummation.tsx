@@ -64,23 +64,29 @@ const config1: FormulizeConfig = {
         var xi = xValues[i];
         var probability = pxValues[i];
         if (i === 0) {
-          step("Get a value x from X:", [["x", xi]]);
-          step("Get a value P(x) from P(x):", [["P(x)", probability]]);
+          step({ description: "Get a value x from X:", values: [["x", xi]] });
+          step({
+            description: "Get a value P(x) from P(x):",
+            values: [["P(x)", probability]],
+          });
         }
         var currExpected = Math.round(xi * probability * 100) / 100;
         if (i === 0) {
-          step("This evaluates to:", [["c", currExpected]]);
+          step({ description: "This evaluates to:", values: [["c", currExpected]] });
         }
         expectedValue = Math.round((expectedValue + currExpected) * 100) / 100;
         switch (i) {
           case 0:
-            step("add up term into E:", [["E", expectedValue]]);
+            step({ description: "add up term into E:", values: [["E", expectedValue]] });
             break;
           case 1:
-            step("add next term...", [["E", expectedValue]]);
+            step({ description: "add next term...", values: [["E", expectedValue]] });
             break;
           case xValues.length - 1:
-            step("finish accumulating weighted sum:", [["E", expectedValue]]);
+            step({
+              description: "finish accumulating weighted sum:",
+              values: [["E", expectedValue]],
+            });
             break;
         }
       }
@@ -136,9 +142,9 @@ const config2: FormulizeConfig = {
       var values = vars.a_i;
       for (var i = 0; i < values.length; i++) {
         var a = values[i];
-        step("Current element:", [["a_i", a]]);
+        step({ description: "Current element:", values: [["a_i", a]] });
         sum = sum + a;
-        step("Running sum:", [["S", sum]]);
+        step({ description: "Running sum:", values: [["S", sum]] });
       }
       return sum;
     },
