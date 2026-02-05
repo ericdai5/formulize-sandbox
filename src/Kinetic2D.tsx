@@ -1,7 +1,7 @@
 import React from "react";
 
 import {
-  FormulaComponent,
+  Formula,
   FormulizeProvider,
   VisualizationComponent,
   InlineFormula,
@@ -18,13 +18,12 @@ const kineticConfig: FormulizeConfig = {
   ],
   variables: {
     K: {
-      role: "computed",
       units: "J",
       name: "Kinetic Energy",
       precision: 2,
     },
     m: {
-      role: "input",
+      input: "drag",
       default: 1,
       range: [0.1, 10],
       step: 1,
@@ -32,7 +31,7 @@ const kineticConfig: FormulizeConfig = {
       name: "Mass",
     },
     v: {
-      role: "input",
+      input: "drag",
       default: 2,
       range: [0.1, 100],
       step: 1,
@@ -40,22 +39,29 @@ const kineticConfig: FormulizeConfig = {
       name: "Velocity",
     },
   },
-  semantics: {
-    engine: "manual",
-    expressions: {
-      "kinetic-energy": "{K} = 0.5 * {m} * {v} * {v}",
-    },
-    manual: function (vars) {
-      const m = vars.m;
-      const v = vars.v;
-      return 0.5 * m * Math.pow(v, 2);
-    },
+  semantics: function ({ vars, data2d }) {
+    vars.K = 0.5 * vars.m * Math.pow(vars.v, 2);
+    data2d("energy", { x: vars.v, y: vars.K });
   },
   visualizations: [
     {
       type: "plot2d" as const,
-      xAxis: "v",
-      yAxis: "K",
+      xAxisVar: "v",
+      yAxisVar: "K",
+      graphs: [
+        {
+          type: "line",
+          id: "energy",
+          parameter: "v",
+          samples: 100,
+          interaction: ["vertical-drag", "m"],
+        },
+        {
+          type: "point",
+          id: "energy",
+          interaction: ["horizontal-drag", "v"],
+        },
+      ],
     },
   ],
   fontSize: 1.5,
@@ -71,7 +77,6 @@ const radioactiveDecayConfig: FormulizeConfig = {
   ],
   variables: {
     N: {
-      role: "computed",
       name: "Substance Remaining",
       units: "atoms",
       precision: 0,
@@ -108,7 +113,7 @@ const radioactiveDecayConfig: FormulizeConfig = {
       hoverCSS: "filter: drop-shadow(0 0 12px #00FF00); transform: scale(1.1);",
     },
     N_0: {
-      role: "input",
+      input: "drag",
       default: 1000,
       name: "Substance Initial",
       range: [100, 10000],
@@ -116,12 +121,11 @@ const radioactiveDecayConfig: FormulizeConfig = {
       precision: 0,
       units: "atoms",
       latexDisplay: "name",
-      memberOf: "N",
       defaultCSS: "filter: drop-shadow(0 0 8px #7FFF00) saturate(1);",
       hoverCSS: "filter: drop-shadow(0 0 12px #00FF00); transform: scale(1.1);",
     },
     "\\lambda": {
-      role: "input",
+      input: "drag",
       default: 0.1,
       name: "Decay Constant",
       range: [0.01, 0.5],
@@ -131,7 +135,7 @@ const radioactiveDecayConfig: FormulizeConfig = {
       latexDisplay: "name",
     },
     t: {
-      role: "input",
+      input: "drag",
       default: 5,
       name: "time",
       range: [0, 50],
@@ -161,30 +165,30 @@ const radioactiveDecayConfig: FormulizeConfig = {
       svgMode: "replace",
     },
   },
-  semantics: {
-    engine: "manual",
-    expressions: {
-      "radioactive-decay": "{N} = {N_0} * exp(-{\\lambda} * {t})",
-    },
-    manual: function (vars) {
-      const N_0 = vars.N_0;
-      const lambda = vars["\\lambda"];
-      const t = vars.t;
-      return N_0 * Math.exp(-lambda * t);
-    },
+  semantics: function ({ vars }) {
+    vars.N = vars.N_0 * Math.exp(-vars["\\lambda"] * vars.t);
   },
   visualizations: [
     {
       type: "plot2d" as const,
-      xAxis: "t",
+      xAxisVar: "t",
       xRange: [0, 50],
       xGrid: "show",
-      yAxis: "N",
+      yAxisVar: "N",
       yRange: [0, 1100],
       yGrid: "show",
-      lines: [
+      graphs: [
         {
+          type: "line",
           color: "#7FFF00",
+          id: "decay",
+          parameter: "t",
+          interaction: ["vertical-drag", "N_0"],
+        },
+        {
+          type: "point",
+          id: "decay",
+          interaction: ["horizontal-drag", "t"],
         },
       ],
     },
@@ -211,7 +215,7 @@ export const Kinetic2DExample: React.FC = () => {
             quadruples the energy, while doubling mass only doubles it.
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
-            <FormulaComponent
+            <Formula
               id="kinetic-energy"
               style={{ height: "200px", width: "300px" }}
             />
@@ -244,10 +248,7 @@ export const Kinetic2DExample: React.FC = () => {
             <InlineVariable id="\\lambda" display="withUnits" />.
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
-            <FormulaComponent
-              id="radioactive-decay"
-              style={{ height: "250px" }}
-            />
+            <Formula id="radioactive-decay" style={{ height: "250px" }} />
             {radioactiveDecayConfig.visualizations &&
               radioactiveDecayConfig.visualizations[0] && (
                 <VisualizationComponent
