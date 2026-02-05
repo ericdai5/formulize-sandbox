@@ -341,7 +341,7 @@ const mannWhitneyConfig: FormulizeConfig = {
   variables: {
     // Tortoise ranks - INPUT variables
     t_1: {
-      role: "input",
+      input: "drag",
       precision: 0,
       default: 1,
       range: [1, 12],
@@ -350,7 +350,7 @@ const mannWhitneyConfig: FormulizeConfig = {
       labelDisplay: "value",
     },
     t_2: {
-      role: "input",
+      input: "drag",
       precision: 0,
       default: 7,
       range: [1, 12],
@@ -359,7 +359,7 @@ const mannWhitneyConfig: FormulizeConfig = {
       labelDisplay: "value",
     },
     t_3: {
-      role: "input",
+      input: "drag",
       precision: 0,
       default: 8,
       range: [1, 12],
@@ -368,7 +368,7 @@ const mannWhitneyConfig: FormulizeConfig = {
       labelDisplay: "value",
     },
     t_4: {
-      role: "input",
+      input: "drag",
       precision: 0,
       default: 9,
       range: [1, 12],
@@ -377,7 +377,7 @@ const mannWhitneyConfig: FormulizeConfig = {
       labelDisplay: "value",
     },
     t_5: {
-      role: "input",
+      input: "drag",
       precision: 0,
       default: 10,
       range: [1, 12],
@@ -386,7 +386,7 @@ const mannWhitneyConfig: FormulizeConfig = {
       labelDisplay: "value",
     },
     t_6: {
-      role: "input",
+      input: "drag",
       precision: 0,
       default: 11,
       range: [1, 12],
@@ -396,7 +396,7 @@ const mannWhitneyConfig: FormulizeConfig = {
     },
     // Hare ranks - INPUT variables
     h_1: {
-      role: "input",
+      input: "drag",
       precision: 0,
       default: 2,
       range: [1, 12],
@@ -405,7 +405,7 @@ const mannWhitneyConfig: FormulizeConfig = {
       labelDisplay: "value",
     },
     h_2: {
-      role: "input",
+      input: "drag",
       precision: 0,
       default: 3,
       range: [1, 12],
@@ -414,7 +414,7 @@ const mannWhitneyConfig: FormulizeConfig = {
       labelDisplay: "value",
     },
     h_3: {
-      role: "input",
+      input: "drag",
       precision: 0,
       default: 4,
       range: [1, 12],
@@ -423,7 +423,7 @@ const mannWhitneyConfig: FormulizeConfig = {
       labelDisplay: "value",
     },
     h_4: {
-      role: "input",
+      input: "drag",
       precision: 0,
       default: 5,
       range: [1, 12],
@@ -432,7 +432,7 @@ const mannWhitneyConfig: FormulizeConfig = {
       labelDisplay: "value",
     },
     h_5: {
-      role: "input",
+      input: "drag",
       precision: 0,
       default: 6,
       range: [1, 12],
@@ -441,7 +441,7 @@ const mannWhitneyConfig: FormulizeConfig = {
       labelDisplay: "value",
     },
     h_6: {
-      role: "input",
+      input: "drag",
       precision: 0,
       default: 12,
       range: [1, 12],
@@ -451,14 +451,12 @@ const mannWhitneyConfig: FormulizeConfig = {
     },
     // Sample sizes - CONSTANTS
     n_T: {
-      role: "constant",
       precision: 0,
       default: 6,
       latexDisplay: "name",
       labelDisplay: "value",
     },
     n_H: {
-      role: "constant",
       precision: 0,
       default: 6,
       latexDisplay: "name",
@@ -466,84 +464,71 @@ const mannWhitneyConfig: FormulizeConfig = {
     },
     // Sum of ranks
     R_T: {
-      role: "computed",
       precision: 0,
       latexDisplay: "name",
       labelDisplay: "value",
     },
     R_H: {
-      role: "computed",
       precision: 0,
       latexDisplay: "name",
       labelDisplay: "value",
     },
     // U statistics
     U_T: {
-      role: "computed",
       precision: 0,
       latexDisplay: "name",
       labelDisplay: "value",
     },
     U_H: {
-      role: "computed",
       precision: 0,
       latexDisplay: "name",
       labelDisplay: "value",
     },
     U: {
-      role: "computed",
       precision: 0,
       latexDisplay: "name",
       labelDisplay: "value",
     },
     // Normal approximation parameters
     "\\mu_U": {
-      role: "computed",
       precision: 2,
       latexDisplay: "name",
       labelDisplay: "value",
     },
     "\\sigma_U": {
-      role: "computed",
       precision: 2,
       latexDisplay: "name",
       labelDisplay: "value",
     },
     z: {
-      role: "computed",
       precision: 3,
       latexDisplay: "name",
       labelDisplay: "value",
     },
   },
-  semantics: {
-    engine: "manual",
-    manual: (vars) => {
-      // Sum of ranks
-      const R_T =
-        vars.t_1 + vars.t_2 + vars.t_3 + vars.t_4 + vars.t_5 + vars.t_6;
-      const R_H =
-        vars.h_1 + vars.h_2 + vars.h_3 + vars.h_4 + vars.h_5 + vars.h_6;
-      vars.R_T = R_T;
-      vars.R_H = R_H;
+  semantics: ({ vars }) => {
+    // Sum of ranks
+    const R_T = vars.t_1 + vars.t_2 + vars.t_3 + vars.t_4 + vars.t_5 + vars.t_6;
+    const R_H = vars.h_1 + vars.h_2 + vars.h_3 + vars.h_4 + vars.h_5 + vars.h_6;
+    vars.R_T = R_T;
+    vars.R_H = R_H;
 
-      const n1 = vars.n_T;
-      const n2 = vars.n_H;
+    const n1 = vars.n_T;
+    const n2 = vars.n_H;
 
-      // U statistics
-      const U_T = n1 * n2 + (n1 * (n1 + 1)) / 2 - R_T;
-      const U_H = n1 * n2 + (n2 * (n2 + 1)) / 2 - R_H;
-      vars.U_T = U_T;
-      vars.U_H = U_H;
-      vars.U = Math.min(U_T, U_H);
+    // U statistics
+    const U_T = n1 * n2 + (n1 * (n1 + 1)) / 2 - R_T;
+    const U_H = n1 * n2 + (n2 * (n2 + 1)) / 2 - R_H;
+    vars.U_T = U_T;
+    vars.U_H = U_H;
+    vars.U = Math.min(U_T, U_H);
 
-      // Normal approximation
-      const muU = (n1 * n2) / 2;
-      const sigmaU = Math.sqrt((n1 * n2 * (n1 + n2 + 1)) / 12);
-      vars["\\mu_U"] = muU;
-      vars["\\sigma_U"] = sigmaU;
-      vars.z = (vars.U - muU) / sigmaU;
-    },
+    // Normal approximation
+    const muU = (n1 * n2) / 2;
+    const sigmaU = Math.sqrt((n1 * n2 * (n1 + n2 + 1)) / 12);
+    vars["\\mu_U"] = muU;
+    vars["\\sigma_U"] = sigmaU;
+    vars.z = (vars.U - muU) / sigmaU;
   },
   fontSize: 1.3,
 };

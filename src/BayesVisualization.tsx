@@ -37,17 +37,15 @@ const bayesConfig: FormulizeConfig = {
   ],
   variables: {
     "P(B \\mid A)": {
-      role: "computed",
       name: "P(B|A)",
       precision: 4,
     },
     "P(A \\mid B)": {
-      role: "computed",
       name: "P(A|B)",
       precision: 4,
     },
     "P(A \\cap B)": {
-      role: "input",
+      input: "drag",
       default: 0.1,
       range: [0, 1],
       step: 0.01,
@@ -55,22 +53,19 @@ const bayesConfig: FormulizeConfig = {
       precision: 3,
     },
     "P(A \\cap \\neg B)": {
-      role: "computed",
       name: "P(A and not B)",
       precision: 3,
     },
     "P(B \\cap \\neg A)": {
-      role: "computed",
       name: "P(B and not A)",
       precision: 3,
     },
     "P(\\neg A \\cap \\neg B)": {
-      role: "computed",
       name: "P(not A and not B)",
       precision: 3,
     },
     "P(B)": {
-      role: "input",
+      input: "drag",
       default: 0.2,
       range: [0, 1],
       step: 0.01,
@@ -78,7 +73,7 @@ const bayesConfig: FormulizeConfig = {
       precision: 3,
     },
     "P(A)": {
-      role: "input",
+      input: "drag",
       default: 0.2,
       range: [0, 1],
       step: 0.01,
@@ -86,39 +81,27 @@ const bayesConfig: FormulizeConfig = {
       precision: 3,
     },
   },
-  semantics: {
-    engine: "symbolic-algebra",
-    expressions: {
-      "bayes-theorem": "{P(B \\mid A)} = ({P(A \\mid B)} * {P(B)}) / {P(A)}",
-      "conditional-probability": "{P(A \\mid B)} = {P(A \\cap B)} / {P(B)}",
-      "a-and-not-b": "{P(A \\cap \\neg B)} = {P(A)} - {P(A \\cap B)}",
-      "b-and-not-a": "{P(B \\cap \\neg A)} = {P(B)} - {P(A \\cap B)}",
-      "not-a-and-not-b":
-        "{P(\\neg A \\cap \\neg B)} = 1 - {P(A)} - {P(B)} + {P(A \\cap B)}",
-    },
-    manual: function (vars) {
-      // Compute all the derived probabilities
-      const pAandB = vars["P(A \\cap B)"];
-      const pA = vars["P(A)"];
-      const pB = vars["P(B)"];
+  semantics: function ({ vars }) {
+    // Compute all the derived probabilities
+    const pAandB = vars["P(A \\cap B)"];
+    const pA = vars["P(A)"];
+    const pB = vars["P(B)"];
 
-      // Conditional probabilities
-      const pAgivenB = pB > 0 ? pAandB / pB : 0;
-      const pBgivenA = pA > 0 ? (pAgivenB * pB) / pA : 0;
+    // Conditional probabilities
+    const pAgivenB = pB > 0 ? pAandB / pB : 0;
+    const pBgivenA = pA > 0 ? (pAgivenB * pB) / pA : 0;
 
-      // Complement intersections
-      const pAandNotB = pA - pAandB;
-      const pBandNotA = pB - pAandB;
-      const pNotAandNotB = 1 - pA - pB + pAandB;
+    // Complement intersections
+    const pAandNotB = pA - pAandB;
+    const pBandNotA = pB - pAandB;
+    const pNotAandNotB = 1 - pA - pB + pAandB;
 
-      return {
-        "P(B \\mid A)": pBgivenA,
-        "P(A \\mid B)": pAgivenB,
-        "P(A \\cap \\neg B)": pAandNotB,
-        "P(B \\cap \\neg A)": pBandNotA,
-        "P(\\neg A \\cap \\neg B)": pNotAandNotB,
-      };
-    },
+    // Set computed values
+    vars["P(B \\mid A)"] = pBgivenA;
+    vars["P(A \\mid B)"] = pAgivenB;
+    vars["P(A \\cap \\neg B)"] = pAandNotB;
+    vars["P(B \\cap \\neg A)"] = pBandNotA;
+    vars["P(\\neg A \\cap \\neg B)"] = pNotAandNotB;
   },
   visualizations: [
     {

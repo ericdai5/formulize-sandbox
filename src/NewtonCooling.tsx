@@ -406,7 +406,6 @@ const newtonCoolingConfig: FormulizeConfig = {
   ],
   variables: {
     "T(t)": {
-      role: "computed",
       name: "Current",
       units: "°C",
       precision: 1,
@@ -415,7 +414,7 @@ const newtonCoolingConfig: FormulizeConfig = {
       svgSize: { width: 32, height: 80 },
     },
     T_0: {
-      role: "input",
+      input: "drag",
       default: 90,
       range: [50, 100],
       step: 1,
@@ -427,7 +426,7 @@ const newtonCoolingConfig: FormulizeConfig = {
       svgSize: { width: 32, height: 80 },
     },
     "T_{env}": {
-      role: "input",
+      input: "drag",
       default: 22,
       range: [0, 40],
       step: 1,
@@ -439,7 +438,7 @@ const newtonCoolingConfig: FormulizeConfig = {
       svgSize: { width: 32, height: 80 },
     },
     k: {
-      role: "input",
+      input: "drag",
       default: 0.05,
       range: [0.01, 0.2],
       step: 0.01,
@@ -448,7 +447,7 @@ const newtonCoolingConfig: FormulizeConfig = {
       precision: 3,
     },
     t: {
-      role: "input",
+      input: "drag",
       default: 0,
       range: [0, 100],
       step: 0.1,
@@ -460,30 +459,38 @@ const newtonCoolingConfig: FormulizeConfig = {
       svgSize: { width: 40, height: 40 },
     },
   },
-  semantics: {
-    engine: "manual",
-    manual: function (vars) {
-      const T_env = vars["T_{env}"];
-      const T_0 = vars.T_0;
-      const k = vars.k;
-      const t = vars.t;
-      return T_env + (T_0 - T_env) * Math.exp(-k * t);
-    },
+  semantics: function ({ vars, data2d }) {
+    vars["T(t)"] =
+      vars["T_{env}"] +
+      (vars.T_0 - vars["T_{env}"]) * Math.exp(-vars.k * vars.t);
+    data2d("temperature", { x: vars.t, y: vars["T(t)"] });
   },
   visualizations: [
     {
       type: "plot2d" as const,
-      xAxis: "t",
+      xAxisLabel: "t",
+      xAxisVar: "t",
       xRange: [0, 100],
       xGrid: "show",
-      yAxis: "T(t)",
+      yAxisLabel: "T(t)",
+      yAxisVar: "T(t)",
       yRange: [0, 100],
       yGrid: "show",
       height: 360,
       width: 360,
-      lines: [
+      graphs: [
         {
+          type: "line",
+          id: "temperature",
+          parameter: "t",
           color: "#e74c3c",
+          interaction: ["vertical-drag", "T_0"],
+        },
+        {
+          type: "point",
+          id: "temperature",
+          color: "#e74c3c",
+          interaction: ["horizontal-drag", "t"],
         },
       ],
     },

@@ -326,7 +326,7 @@ function generateNeuralNetwork(layers: number[]) {
 
   // Input variables
   const inputVars = Variable.vector("x", layers[0], {
-    role: "input",
+    input: "drag",
     default: () => Math.round((Math.random() * 2 - 1) * 100) / 100,
     range: [-2, 2],
     step: 0.05,
@@ -345,7 +345,7 @@ function generateNeuralNetwork(layers: number[]) {
       ({ i, j }) => [
         `w_{${i},${j},${l}}`,
         {
-          role: "input" as const,
+          input: "drag",
           default: Math.round((Math.random() * 2 - 1) * 100) / 100,
           range: [-2, 2],
           step: 0.05,
@@ -358,7 +358,7 @@ function generateNeuralNetwork(layers: number[]) {
     // Biases - use valid LaTeX subscript notation
     for (let i = 1; i <= currSize; i++) {
       variables[`b_{${i},${l}}`] = {
-        role: "input",
+        input: "drag",
         default: 0,
         range: [-2, 2],
         step: 0.05,
@@ -368,8 +368,8 @@ function generateNeuralNetwork(layers: number[]) {
 
     // Computed variables and formulas - use valid LaTeX subscript notation
     for (let i = 1; i <= currSize; i++) {
-      variables[`z_{${i},${l}}`] = { role: "computed", precision: 3 };
-      variables[`h_{${i},${l}}`] = { role: "computed", precision: 3 };
+      variables[`z_{${i},${l}}`] = { precision: 3 };
+      variables[`h_{${i},${l}}`] = { precision: 3 };
 
       // Formula for h: shows the full computation with expanded terms
       // Variable IDs now use valid LaTeX notation directly
@@ -427,7 +427,7 @@ export const NeuralNetworkExample: React.FC = () => {
     () => ({
       formulas,
       variables,
-      semantics: { engine: "manual", manual },
+      semantics: ({ vars }) => manual(vars),
       visualizations: [
         {
           type: "custom" as const,

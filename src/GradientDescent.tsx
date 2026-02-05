@@ -4,20 +4,21 @@ import {
   Formula,
   FormulizeProvider,
   InlineVariable,
-  InterpreterControl,
+  StepControl,
   VisualizationComponent,
   type FormulizeConfig,
   type IPlot2D,
-  step,
 } from "formulize-math";
 
 const combinedPlotConfig: IPlot2D = {
   type: "plot2d",
   id: "loss-gradient-plot",
   title: "Loss & Gradient vs Weight",
-  xAxis: "w_t",
+  xAxisLabel: "w",
+  xAxisVar: "w_t",
   xRange: [-0.5, 2.5],
-  yAxis: "L", // Primary y-axis (used as default)
+  yAxisVar: "L", // Primary y-axis (used as default)
+  yAxisLabel: "L",
   yRange: [-5, 10], // Extended to show both loss (0-25) and gradient (-15 to 15)
   xAxisPos: "center", // Center x-axis at y=0 so gradient line crosses it
   yAxisPos: "edge",
@@ -25,31 +26,27 @@ const combinedPlotConfig: IPlot2D = {
   yGrid: "show",
   width: 560,
   height: 400,
-  lines: [
+  graphs: [
     {
+      type: "line",
+      id: "loss",
+      parameter: "w_t",
       color: "#ef4444", // Red for loss (parabola)
-      lineWidth: 2.5,
-      name: "loss-function",
-      yAxis: "L",
     },
     {
+      type: "line",
+      id: "gradient",
+      parameter: "w_t",
       color: "#f97316", // Orange for gradient (linear)
-      lineWidth: 2.5,
-      name: "gradient",
-      yAxis: "\\nabla L",
     },
-  ],
-  // Add step points when specific views are active
-  stepPoints: {
-    "weight-update": {
-      xValue: "w_t",
-      yValue: "L",
+    {
+      type: "point",
+      id: "testing",
+      stepId: "weight-update",
       persistence: true,
       color: "#3b82f6", // Blue
-      size: 6,
-      label: "wₜ",
     },
-  },
+  ],
 };
 
 const gradientDescentConfig: FormulizeConfig = {
@@ -70,24 +67,23 @@ const gradientDescentConfig: FormulizeConfig = {
   variables: {
     // Index variable t (iteration number)
     t: {
-      role: "input",
+      input: "drag",
       name: "Iteration",
       default: 0,
       precision: 0,
     },
     // t+1 index for the next weight
     "t+1": {
-      role: "input",
+      input: "drag",
       name: "Next Iteration",
       default: 1,
       precision: 0,
     },
     // Loss and Gradient (computed at current w_t)
-    L: { role: "computed", name: "Loss", precision: 4 },
-    "\\nabla L": { role: "computed", name: "Gradient", precision: 4 },
+    L: { name: "Loss", precision: 4 },
+    "\\nabla L": { name: "Gradient", precision: 4 },
     // Current weight w_t (input, user can adjust starting point)
     w_t: {
-      role: "input",
       default: 0.5,
       range: [-1, 4],
       step: 0.05,
@@ -96,13 +92,12 @@ const gradientDescentConfig: FormulizeConfig = {
     },
     // Next weight w_{t+1} (computed)
     "w_{t+1}": {
-      role: "computed",
       name: "Next Weight",
       precision: 4,
     },
     // Learning rate
     "\\alpha": {
-      role: "input",
+      input: "drag",
       default: 0.1,
       range: [0.01, 0.5],
       step: 0.01,
@@ -111,7 +106,7 @@ const gradientDescentConfig: FormulizeConfig = {
     },
     // Data inputs
     x: {
-      role: "input",
+      input: "drag",
       default: 1.5,
       range: [0.5, 3],
       step: 0.1,
@@ -119,7 +114,7 @@ const gradientDescentConfig: FormulizeConfig = {
       precision: 2,
     },
     y: {
-      role: "input",
+      input: "drag",
       default: 3,
       range: [1, 5],
       step: 0.1,
@@ -127,114 +122,108 @@ const gradientDescentConfig: FormulizeConfig = {
       precision: 2,
     },
   },
-  semantics: {
-    engine: "manual",
-    mode: "step",
-    // Expressions are used by Plot2D to evaluate curves
-    expressions: {
-      "loss-function": "{L} = ({y} - {w_t} * {x})^2",
-      gradient: "{\\nabla L} = -2 * {x} * ({y} - {w_t} * {x})",
-      "update-rule": "{w_{t+1}} = {w_t} - {\\alpha} * {\\nabla L}",
-    },
-    manual: function (vars) {
-      var x = vars.x;
-      var y = vars.y;
-      var alpha = vars["\\alpha"];
-      var w_t = vars.w_t;
-      var numIterations = 6;
-      for (var t = 0; t < numIterations; t++) {
-        var t_plus_1 = t + 1;
-        var prediction = w_t * x;
-        var error = y - prediction;
-        step({
-          "loss-function": {
-            description: "$Error = y - prediction = " + error.toFixed(2) + "$",
-            values: [
-              ["y", y],
-              ["w_t", w_t],
-              ["x", x],
-            ],
-          },
-        });
-        var L = error * error;
-        step({
-          "loss-function": {
-            description: "$Error^2 = " + L.toFixed(2) + "$",
-            values: [["L", L]],
-          },
-        });
-        var nablaL = -2 * x * error;
-        step({
-          "loss-function": {
-            description: "$Error = y - prediction = " + error.toFixed(2) + "$",
-            values: [
-              ["y", y],
-              ["w_t", w_t],
-              ["x", x],
-            ],
-          },
-          gradient: {
-            description:
-              "$-2 \\cdot " +
-              x.toFixed(2) +
-              " \\cdot " +
-              error.toFixed(2) +
-              " = " +
-              nablaL.toFixed(2) +
-              "$",
-            values: [["\\nabla L", nablaL]],
-            expression: "-2x(y - w_t \\cdot x)",
-          },
-        });
-        var stepSize = alpha * nablaL;
-        step({
-          "update-rule": {
-            description:
-              "Calculating step: $\\alpha \\cdot \\nabla L = " +
-              stepSize.toFixed(2) +
-              "$",
-            values: [
-              ["\\alpha", alpha],
-              ["\\nabla L", nablaL],
-            ],
-            expression: "\\alpha \\cdot \\nabla L",
-          },
-        });
-        var w_t_plus_1 = w_t - stepSize;
-        step(
-          {
-            "update-rule": {
-              description:
-                "Calculated next weight $w_{t+1} = " +
-                w_t_plus_1.toFixed(2) +
-                "$",
-              values: [
-                ["w_{t+1}", w_t_plus_1],
-                ["w_t", w_t],
-                ["t", t],
-                ["t+1", t_plus_1],
-              ],
-              expression: "w_{t+1} = w_t - \\alpha \\cdot \\nabla L",
-            },
-          },
-          "weight-update",
-        );
-        w_t = w_t_plus_1;
-      }
-      // Summary
+  stepping: true,
+  semantics: function ({ vars, data2d, step }) {
+    var x = vars.x;
+    var y = vars.y;
+    var alpha = vars["\\alpha"];
+    var w_t = vars.w_t;
+    var numIterations = 6;
+    for (var t = 0; t < numIterations; t++) {
+      var t_plus_1 = t + 1;
+      var prediction = w_t * x;
+      var error = y - prediction;
+      step({
+        "loss-function": {
+          description: "$Error = y - prediction = " + error.toFixed(2) + "$",
+          values: [
+            ["y", y],
+            ["w_t", w_t],
+            ["x", x],
+          ],
+        },
+      });
+      var L = error * error;
+      step({
+        "loss-function": {
+          description: "$Error^2 = " + L.toFixed(2) + "$",
+          values: [["L", L]],
+        },
+      });
+      data2d("loss", { x: w_t, y: L });
+      var nablaL = -2 * x * error;
+      data2d("gradient", { x: w_t, y: nablaL });
+      step({
+        "loss-function": {
+          description: "$Error = y - prediction = " + error.toFixed(2) + "$",
+          values: [
+            ["y", y],
+            ["w_t", w_t],
+            ["x", x],
+          ],
+        },
+        gradient: {
+          description:
+            "$-2 \\cdot " +
+            x.toFixed(2) +
+            " \\cdot " +
+            error.toFixed(2) +
+            " = " +
+            nablaL.toFixed(2) +
+            "$",
+          values: [["\\nabla L", nablaL]],
+          expression: "-2x(y - w_t \\cdot x)",
+        },
+      });
+      var stepSize = alpha * nablaL;
       step({
         "update-rule": {
           description:
-            "Final weight after " +
-            numIterations +
-            " iterations: $w_t = " +
-            w_t.toFixed(2) +
+            "Calculating step: $\\alpha \\cdot \\nabla L = " +
+            stepSize.toFixed(2) +
             "$",
-          values: [["w_t", w_t]],
+          values: [
+            ["\\alpha", alpha],
+            ["\\nabla L", nablaL],
+          ],
+          expression: "\\alpha \\cdot \\nabla L",
         },
       });
-      return w_t;
-    },
+      var w_t_plus_1 = w_t - stepSize;
+      data2d("testing", { x: w_t, y: L });
+      step(
+        {
+          "update-rule": {
+            description:
+              "Calculated next weight $w_{t+1} = " +
+              w_t_plus_1.toFixed(2) +
+              "$",
+            values: [
+              ["w_{t+1}", w_t_plus_1],
+              ["w_t", w_t],
+              ["t", t],
+              ["t+1", t_plus_1],
+            ],
+            expression: "w_{t+1} = w_t - \\alpha \\cdot \\nabla L",
+          },
+        },
+        "weight-update",
+      );
+      w_t = w_t_plus_1;
+    }
+    // Summary
+    step({
+      "update-rule": {
+        description:
+          "Final weight after " +
+          numIterations +
+          " iterations: $w_t = " +
+          w_t.toFixed(2) +
+          "$",
+        values: [["w_t", w_t]],
+      },
+    });
+    return w_t;
   },
   // Add visualizations to the config
   visualizations: [combinedPlotConfig],
@@ -279,7 +268,7 @@ const GradientDescentContent: React.FC = () => {
               </div>
             </div>
           </div>
-          <InterpreterControl width="100%" defaultCollapsed={true} />
+          <StepControl className="w-full" />
         </div>
       </div>
     </div>
