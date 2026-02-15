@@ -2,13 +2,13 @@ import React from "react";
 
 import {
   Formula,
-  FormulizeProvider,
+  Provider,
   InlineVariable,
   StepControl,
   VisualizationComponent,
-  type FormulizeConfig,
+  type Config,
   type IPlot2D,
-} from "formulize-math";
+} from "math-notation";
 
 const combinedPlotConfig: IPlot2D = {
   type: "plot2d",
@@ -49,7 +49,7 @@ const combinedPlotConfig: IPlot2D = {
   ],
 };
 
-const gradientDescentConfig: FormulizeConfig = {
+const gradientDescentConfig: Config = {
   formulas: [
     {
       id: "loss-function",
@@ -277,9 +277,9 @@ const GradientDescentContent: React.FC = () => {
 
 export const GradientDescentExample: React.FC = () => {
   return (
-    <FormulizeProvider config={gradientDescentConfig}>
+    <Provider config={gradientDescentConfig}>
       <GradientDescentContent />
-    </FormulizeProvider>
+    </Provider>
   );
 };
 

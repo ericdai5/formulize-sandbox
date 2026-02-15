@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   Formula,
-  FormulizeProvider,
+  Provider,
   InlineFormula,
   InlineVariable,
   VisualizationComponent,
-  type FormulizeConfig,
+  type Config,
   type IContext,
   register,
-} from "formulize-math";
+} from "math-notation";
 
 // Dynamic thermometer SVG generator functions that respond to variable values
 // Similar to jsGeneratedSVG.ts pattern - each function receives ctx with ctx.value
@@ -397,7 +397,7 @@ try {
 }
 
 // Main Newton's Law of Cooling configuration
-const newtonCoolingConfig: FormulizeConfig = {
+const newtonCoolingConfig: Config = {
   formulas: [
     {
       id: "newton-cooling",
@@ -522,7 +522,7 @@ export const NewtonCoolingExample: React.FC = () => {
             room temperature.
           </p>
         </header>
-        <FormulizeProvider config={newtonCoolingConfig}>
+        <Provider config={newtonCoolingConfig}>
           <div className="space-y-8">
             {/* Main explanation card */}
             <div className="bg-gray-50 rounded-2xl border border-gray-200 p-8 shadow-sm">
@@ -576,7 +576,7 @@ export const NewtonCoolingExample: React.FC = () => {
               </div>
             </div>
           </div>
-        </FormulizeProvider>
+        </Provider>
       </div>
     </div>
   );

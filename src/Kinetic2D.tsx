@@ -2,14 +2,14 @@ import React from "react";
 
 import {
   Formula,
-  FormulizeProvider,
+  Provider,
   VisualizationComponent,
   InlineFormula,
   InlineVariable,
-  type FormulizeConfig,
-} from "formulize-math";
+  type Config,
+} from "math-notation";
 
-const kineticConfig: FormulizeConfig = {
+const kineticConfig: Config = {
   formulas: [
     {
       id: "kinetic-energy",
@@ -68,7 +68,7 @@ const kineticConfig: FormulizeConfig = {
 };
 
 // SVG Integration: Radioactive Decay Example
-const radioactiveDecayConfig: FormulizeConfig = {
+const radioactiveDecayConfig: Config = {
   formulas: [
     {
       id: "radioactive-decay",
@@ -200,7 +200,7 @@ export const Kinetic2DExample: React.FC = () => {
   return (
     <div className="space-y-12">
       {/* Kinetic Energy Section */}
-      <FormulizeProvider config={kineticConfig}>
+      <Provider config={kineticConfig}>
         <div className="rounded-xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
             Kinetic Energy
@@ -229,10 +229,10 @@ export const Kinetic2DExample: React.FC = () => {
               )}
           </div>
         </div>
-      </FormulizeProvider>
+      </Provider>
 
       {/* Radioactive Decay Section with SVG Integration */}
-      <FormulizeProvider config={radioactiveDecayConfig}>
+      <Provider config={radioactiveDecayConfig}>
         <div className="rounded-xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
             Radioactive Decay (SVG Integration)
@@ -259,7 +259,7 @@ export const Kinetic2DExample: React.FC = () => {
               )}
           </div>
         </div>
-      </FormulizeProvider>
+      </Provider>
     </div>
   );
 };

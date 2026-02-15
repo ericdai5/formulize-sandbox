@@ -2,17 +2,17 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import {
   Formula,
-  FormulizeProvider,
+  Provider,
   VisualizationComponent,
   InlineVariable,
   EmbeddedFormula,
   Variable,
   register,
-  type FormulizeConfig,
+  type Config,
   type IFormula,
   type IVariablesUserInput,
   type IContext,
-} from "formulize-math";
+} from "math-notation";
 
 /**
  * Neural Network Forward Pass Example
@@ -423,7 +423,7 @@ export const NeuralNetworkExample: React.FC = () => {
     [],
   );
 
-  const config: FormulizeConfig = useMemo(
+  const config: Config = useMemo(
     () => ({
       formulas,
       variables,
@@ -448,7 +448,7 @@ export const NeuralNetworkExample: React.FC = () => {
   const totalBiases = LAYERS.slice(1).reduce((sum, n) => sum + n, 0);
 
   return (
-    <FormulizeProvider config={config}>
+    <Provider config={config}>
       <div className="max-w-7xl mx-auto p-6">
         <h1 className="text-4xl font-bold mb-2">
           Understanding Neural Networks
@@ -623,7 +623,7 @@ export const NeuralNetworkExample: React.FC = () => {
           </p>
         </div>
       </div>
-    </FormulizeProvider>
+    </Provider>
   );
 };
 

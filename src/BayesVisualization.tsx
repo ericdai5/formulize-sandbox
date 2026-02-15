@@ -3,16 +3,16 @@ import * as d3 from "d3";
 
 import {
   Formula,
-  FormulizeProvider,
+  Provider,
   InlineFormula,
   InlineVariable,
-  type FormulizeConfig,
+  type Config,
   type IContext,
   register,
   VisualizationComponent,
-} from "formulize-math";
+} from "math-notation";
 
-const bayesConfig: FormulizeConfig = {
+const bayesConfig: Config = {
   formulas: [
     {
       id: "bayes-theorem",
@@ -641,7 +641,7 @@ try {
 
 export const BayesVisualizationExample: React.FC = () => {
   return (
-    <FormulizeProvider config={bayesConfig}>
+    <Provider config={bayesConfig}>
       <div className="max-w-6xl mx-auto p-6">
         <h2 className="text-2xl font-bold mb-4">
           Bayes' Theorem Interactive Visualization
@@ -733,7 +733,7 @@ export const BayesVisualizationExample: React.FC = () => {
           </div>
         </div>
       </div>
-    </FormulizeProvider>
+    </Provider>
   );
 };
 

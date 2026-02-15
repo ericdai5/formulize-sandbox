@@ -2,14 +2,14 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import {
   Formula,
-  FormulizeProvider,
+  Provider,
   InlineFormula,
   InlineVariable,
   register,
   VisualizationComponent,
-  type FormulizeConfig,
+  type Config,
   type IContext,
-} from "formulize-math";
+} from "math-notation";
 
 // ============================================================================
 // Race Order Visualization Component
@@ -290,7 +290,7 @@ register("RaceOrderVisualization", RaceOrderVisualizationInner);
 // Expected results: R_T=46, R_H=32, U_T=11, U_H=25, U=11
 // ============================================================================
 
-const mannWhitneyConfig: FormulizeConfig = {
+const mannWhitneyConfig: Config = {
   formulas: [
     // Step 1: Sum of ranks - R_T shows as symbol (name), t_i shows as values
     {
@@ -535,7 +535,7 @@ const mannWhitneyConfig: FormulizeConfig = {
 
 export const MannWhitneyExample: React.FC = () => {
   return (
-    <FormulizeProvider config={mannWhitneyConfig}>
+    <Provider config={mannWhitneyConfig}>
       <div className="max-w-4xl mx-auto p-6">
         <h1 className="text-4xl font-bold mb-2">The Mann-Whitney U Test</h1>
         <p className="text-xl text-gray-500 mb-8">
@@ -706,7 +706,7 @@ export const MannWhitneyExample: React.FC = () => {
           </p>
         </div>
       </div>
-    </FormulizeProvider>
+    </Provider>
   );
 };
 

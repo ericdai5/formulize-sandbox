@@ -1,13 +1,13 @@
 import React from "react";
 import {
   Formula,
-  FormulizeProvider,
+  Provider,
   StepControl,
-  type FormulizeConfig,
-} from "formulize-math";
+  type Config,
+} from "math-notation";
 
 // First config: Expected Value with 10 items
-const config1: FormulizeConfig = {
+const config1: Config = {
   formulas: [
     {
       id: "summation-basic",
@@ -100,7 +100,7 @@ const config1: FormulizeConfig = {
 };
 
 // Second config: Simple summation with 5 items (different formula)
-const config2: FormulizeConfig = {
+const config2: Config = {
   formulas: [
     {
       id: "sum-basic",
@@ -159,7 +159,7 @@ const MinimalSummation: React.FC = () => {
         <h2 className="text-lg font-semibold text-blue-800 mb-4">
           Formula 1: Expected Value
         </h2>
-        <FormulizeProvider config={config1}>
+        <Provider config={config1}>
           <div className="flex flex-col gap-4">
             <Formula
               id="summation-basic"
@@ -167,14 +167,14 @@ const MinimalSummation: React.FC = () => {
             />
             <StepControl />
           </div>
-        </FormulizeProvider>
+        </Provider>
       </div>
       {/* Second Formulize Provider - Simple Sum */}
       <div className="border-2 border-green-200 rounded-lg p-4 bg-green-50">
         <h2 className="text-lg font-semibold text-green-800 mb-4">
           Formula 2: Simple Summation
         </h2>
-        <FormulizeProvider config={config2}>
+        <Provider config={config2}>
           <div className="flex flex-col gap-4">
             <Formula
               id="sum-basic"
@@ -182,7 +182,7 @@ const MinimalSummation: React.FC = () => {
             />
             <StepControl />
           </div>
-        </FormulizeProvider>
+        </Provider>
       </div>
     </div>
   );
