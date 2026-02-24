@@ -59,17 +59,17 @@ const config1: Config = {
       var xi = xValues[i];
       var probability = pxValues[i];
       if (i === 0) {
-        step({ description: "Get a value x from X:", values: [["x", xi]] });
+        step({ description: "Get a value x from X:", labels: { x: xi } });
         step({
           description: "Get a value P(x) from P(x):",
-          values: [["P(x)", probability]],
+          labels: { "P(x)": probability },
         });
       }
       var currExpected = Math.round(xi * probability * 100) / 100;
       if (i === 0) {
         step({
           description: "This evaluates to:",
-          values: [["c", currExpected]],
+          labels: { c: currExpected },
         });
       }
       expectedValue = Math.round((expectedValue + currExpected) * 100) / 100;
@@ -77,19 +77,19 @@ const config1: Config = {
         case 0:
           step({
             description: "add up term into E:",
-            values: [["E", expectedValue]],
+            labels: { E: expectedValue },
           });
           break;
         case 1:
           step({
             description: "add next term...",
-            values: [["E", expectedValue]],
+            labels: { E: expectedValue },
           });
           break;
         case xValues.length - 1:
           step({
             description: "finish accumulating weighted sum:",
-            values: [["E", expectedValue]],
+            labels: { E: expectedValue },
           });
           break;
       }
@@ -139,9 +139,9 @@ const config2: Config = {
     var values = vars.a_i;
     for (var i = 0; i < values.length; i++) {
       var a = values[i];
-      step({ description: "Current element:", values: [["a_i", a]] });
+      step({ description: "Current element:", labels: { a_i: a } });
       sum = sum + a;
-      step({ description: "Running sum:", values: [["S", sum]] });
+      step({ description: "Running sum:", labels: { S: sum } });
     }
     vars.S = sum;
   },

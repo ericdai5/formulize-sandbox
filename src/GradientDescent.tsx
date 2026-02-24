@@ -136,18 +136,18 @@ const gradientDescentConfig: Config = {
       step({
         "loss-function": {
           description: "$Error = y - prediction = " + error.toFixed(2) + "$",
-          values: [
-            ["y", y],
-            ["w_t", w_t],
-            ["x", x],
-          ],
+          labels: {
+            y: y,
+            w_t: w_t,
+            x: x,
+          },
         },
       });
       var L = error * error;
       step({
         "loss-function": {
           description: "$Error^2 = " + L.toFixed(2) + "$",
-          values: [["L", L]],
+          labels: { L: L },
         },
       });
       data2d("loss", { x: w_t, y: L });
@@ -156,37 +156,36 @@ const gradientDescentConfig: Config = {
       step({
         "loss-function": {
           description: "$Error = y - prediction = " + error.toFixed(2) + "$",
-          values: [
-            ["y", y],
-            ["w_t", w_t],
-            ["x", x],
-          ],
+          labels: {
+            y: y,
+            w_t: w_t,
+            x: x,
+          },
         },
         gradient: {
-          description:
-            "$-2 \\cdot " +
-            x.toFixed(2) +
-            " \\cdot " +
-            error.toFixed(2) +
-            " = " +
-            nablaL.toFixed(2) +
-            "$",
-          values: [["\\nabla L", nablaL]],
-          expression: "-2x(y - w_t \\cdot x)",
+          description: "Calculating gradient",
+          labels: {
+            "\\nabla L": nablaL,
+            "-2x(y - w_t \\cdot x)":
+              "$-2 \\cdot " +
+              x.toFixed(2) +
+              " \\cdot " +
+              error.toFixed(2) +
+              " = " +
+              nablaL.toFixed(2) +
+              "$",
+          },
         },
       });
       var stepSize = alpha * nablaL;
       step({
         "update-rule": {
-          description:
-            "Calculating step: $\\alpha \\cdot \\nabla L = " +
-            stepSize.toFixed(2) +
-            "$",
-          values: [
-            ["\\alpha", alpha],
-            ["\\nabla L", nablaL],
-          ],
-          expression: "\\alpha \\cdot \\nabla L",
+          labels: {
+            "\\alpha": alpha,
+            "\\nabla L": nablaL,
+            "\\alpha \\cdot \\nabla L":
+              "Calculating step = $" + stepSize.toFixed(2) + "$",
+          },
         },
       });
       var w_t_plus_1 = w_t - stepSize;
@@ -194,17 +193,16 @@ const gradientDescentConfig: Config = {
       step(
         {
           "update-rule": {
-            description:
-              "Calculated next weight $w_{t+1} = " +
-              w_t_plus_1.toFixed(2) +
-              "$",
-            values: [
-              ["w_{t+1}", w_t_plus_1],
-              ["w_t", w_t],
-              ["t", t],
-              ["t+1", t_plus_1],
-            ],
-            expression: "w_{t+1} = w_t - \\alpha \\cdot \\nabla L",
+            labels: {
+              "w_{t+1}": w_t_plus_1,
+              w_t: w_t,
+              t: t,
+              "t+1": t_plus_1,
+              "w_{t+1} = w_t - \\alpha \\cdot \\nabla L":
+                "Calculated next weight $w_{t+1} = " +
+                w_t_plus_1.toFixed(2) +
+                "$",
+            },
           },
         },
         "weight-update",
@@ -220,7 +218,7 @@ const gradientDescentConfig: Config = {
           " iterations: $w_t = " +
           w_t.toFixed(2) +
           "$",
-        values: [["w_t", w_t]],
+        labels: { w_t: w_t },
       },
     });
     return w_t;
