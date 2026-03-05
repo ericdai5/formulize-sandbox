@@ -3,7 +3,7 @@ import React from "react";
 import {
   Formula,
   Provider,
-  VisualizationComponent,
+  Graph,
   InlineFormula,
   InlineVariable,
   type Config,
@@ -43,22 +43,22 @@ const kineticConfig: Config = {
     vars.K = 0.5 * vars.m * Math.pow(vars.v, 2);
     data2d("energy", { x: vars.v, y: vars.K });
   },
-  visualizations: [
+  graph2d: [
     {
-      type: "plot2d" as const,
+      id: "energyGraph",
       xAxisVar: "v",
       yAxisVar: "K",
-      graphs: [
+      lines: [
         {
-          type: "line",
-          id: "energy",
+          dataId: "energy",
           parameter: "v",
           samples: 100,
           interaction: ["vertical-drag", "m"],
         },
+      ],
+      points: [
         {
-          type: "point",
-          id: "energy",
+          dataId: "energy",
           interaction: ["horizontal-drag", "v"],
         },
       ],
@@ -168,26 +168,26 @@ const radioactiveDecayConfig: Config = {
   semantics: function ({ vars }) {
     vars.N = vars.N_0 * Math.exp(-vars["\\lambda"] * vars.t);
   },
-  visualizations: [
+  graph2d: [
     {
-      type: "plot2d" as const,
+      id: "decayGraph",
       xAxisVar: "t",
       xRange: [0, 50],
       xGrid: "show",
       yAxisVar: "N",
       yRange: [0, 1100],
       yGrid: "show",
-      graphs: [
+      lines: [
         {
-          type: "line",
           color: "#7FFF00",
-          id: "decay",
+          dataId: "decay",
           parameter: "t",
           interaction: ["vertical-drag", "N_0"],
         },
+      ],
+      points: [
         {
-          type: "point",
-          id: "decay",
+          dataId: "decay",
           interaction: ["horizontal-drag", "t"],
         },
       ],
@@ -219,11 +219,10 @@ export const Kinetic2DExample: React.FC = () => {
               id="kinetic-energy"
               style={{ height: "200px", width: "300px" }}
             />
-            {kineticConfig.visualizations &&
-              kineticConfig.visualizations[0] && (
-                <VisualizationComponent
-                  type="plot2d"
-                  config={kineticConfig.visualizations[0]}
+            {kineticConfig.graph2d &&
+              kineticConfig.graph2d[0] && (
+                <Graph
+                  id={kineticConfig.graph2d[0].id}
                   height={400}
                 />
               )}
@@ -249,11 +248,10 @@ export const Kinetic2DExample: React.FC = () => {
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
             <Formula id="radioactive-decay" style={{ height: "250px" }} />
-            {radioactiveDecayConfig.visualizations &&
-              radioactiveDecayConfig.visualizations[0] && (
-                <VisualizationComponent
-                  type="plot2d"
-                  config={radioactiveDecayConfig.visualizations[0]}
+            {radioactiveDecayConfig.graph2d &&
+              radioactiveDecayConfig.graph2d[0] && (
+                <Graph
+                  id={radioactiveDecayConfig.graph2d[0].id}
                   height={400}
                 />
               )}

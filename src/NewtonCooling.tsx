@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Formula,
   Provider,
+  Custom,
   InlineFormula,
   InlineVariable,
-  VisualizationComponent,
+  Graph,
   type Config,
-  type IContext,
-  register,
+  type IGraph2D,
 } from "math-notation";
 
 // Dynamic thermometer SVG generator functions that respond to variable values
@@ -128,31 +128,19 @@ function timeSvg(ctx: { value?: unknown }) {
 }
 
 // Stopwatch custom visualization component
-interface StopwatchVisualizationProps {
-  context: IContext;
-}
-
-const StopwatchVisualization: React.FC<StopwatchVisualizationProps> = ({
-  context,
-}) => {
+const StopwatchVisualization = Custom(({ vars }) => {
   const [isRunning, setIsRunning] = useState(false);
   const [displayTime, setDisplayTime] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number>(0);
   const accumulatedTimeRef = useRef<number>(0);
-  const contextRef = useRef(context);
-
-  // Keep context ref updated
-  useEffect(() => {
-    contextRef.current = context;
-  }, [context]);
 
   // Sync display time with context on mount
   useEffect(() => {
-    const t = context.getVariable("t") || 0;
+    const t = typeof vars.t === "number" ? vars.t : 0;
     setDisplayTime(t);
     accumulatedTimeRef.current = t;
-  }, []);
+  }, [vars]);
 
   useEffect(() => {
     if (isRunning) {
@@ -162,7 +150,7 @@ const StopwatchVisualization: React.FC<StopwatchVisualizationProps> = ({
         const newTime = Math.min(accumulatedTimeRef.current + elapsed, 100);
         const roundedTime = Math.round(newTime * 10) / 10;
         setDisplayTime(roundedTime);
-        contextRef.current.updateVariable("t", roundedTime);
+        vars.t = roundedTime;
       }, 100);
     } else {
       if (intervalRef.current) {
@@ -193,7 +181,7 @@ const StopwatchVisualization: React.FC<StopwatchVisualizationProps> = ({
     setIsRunning(false);
     accumulatedTimeRef.current = 0;
     setDisplayTime(0);
-    contextRef.current.updateVariable("t", 0);
+    vars.t = 0;
   };
 
   // Calculate hand rotation (1 full rotation = 60 units)
@@ -387,14 +375,36 @@ const StopwatchVisualization: React.FC<StopwatchVisualizationProps> = ({
       </div>
     </div>
   );
-};
+});
 
-// Register the stopwatch component
-try {
-  register("StopwatchVisualization", StopwatchVisualization);
-} catch (error) {
-  console.warn("Failed to register StopwatchVisualization:", error);
-}
+const newtonPlotConfig: IGraph2D = {
+  id: "temperatureGraph",
+  xAxisLabel: "t",
+  xAxisVar: "t",
+  xRange: [0, 100],
+  xGrid: "show",
+  yAxisLabel: "T(t)",
+  yAxisVar: "T(t)",
+  yRange: [0, 100],
+  yGrid: "show",
+  height: 360,
+  width: 360,
+  lines: [
+    {
+      dataId: "temperature",
+      parameter: "t",
+      color: "#e74c3c",
+      interaction: ["vertical-drag", "T_0"],
+    },
+  ],
+  points: [
+    {
+      dataId: "temperature",
+      color: "#e74c3c",
+      interaction: ["horizontal-drag", "t"],
+    },
+  ],
+};
 
 // Main Newton's Law of Cooling configuration
 const newtonCoolingConfig: Config = {
@@ -465,45 +475,7 @@ const newtonCoolingConfig: Config = {
       (vars.T_0 - vars["T_{env}"]) * Math.exp(-vars.k * vars.t);
     data2d("temperature", { x: vars.t, y: vars["T(t)"] });
   },
-  visualizations: [
-    {
-      type: "plot2d" as const,
-      xAxisLabel: "t",
-      xAxisVar: "t",
-      xRange: [0, 100],
-      xGrid: "show",
-      yAxisLabel: "T(t)",
-      yAxisVar: "T(t)",
-      yRange: [0, 100],
-      yGrid: "show",
-      height: 360,
-      width: 360,
-      graphs: [
-        {
-          type: "line",
-          id: "temperature",
-          parameter: "t",
-          color: "#e74c3c",
-          interaction: ["vertical-drag", "T_0"],
-        },
-        {
-          type: "point",
-          id: "temperature",
-          color: "#e74c3c",
-          interaction: ["horizontal-drag", "t"],
-        },
-      ],
-    },
-    {
-      type: "custom" as const,
-      id: "stopwatch",
-      component: "StopwatchVisualization",
-      variables: ["t"],
-      update: {
-        onVariableChange: true,
-      },
-    },
-  ],
+  graph2d: [newtonPlotConfig],
   fontSize: 1.4,
 };
 
@@ -557,22 +529,12 @@ export const NewtonCoolingExample: React.FC = () => {
                 id="newton-cooling"
                 style={{ width: "500px", height: "500px" }}
               />
-              {newtonCoolingConfig.visualizations && (
-                <VisualizationComponent
-                  type="custom"
-                  config={newtonCoolingConfig.visualizations[1]}
-                  style={{ width: "240px", height: "500px" }}
-                />
-              )}
+              <div className="w-[240px] h-[500px] border border-slate-200 rounded-lg bg-white p-2">
+                <StopwatchVisualization />
+              </div>
               {/* Temperature vs Time Plot */}
               <div className="flex flex-col gap-6 w-96">
-                {newtonCoolingConfig.visualizations &&
-                  newtonCoolingConfig.visualizations[0] && (
-                    <VisualizationComponent
-                      type="plot2d"
-                      config={newtonCoolingConfig.visualizations[0]}
-                    />
-                  )}
+                <Graph id={newtonPlotConfig.id} />
               </div>
             </div>
           </div>

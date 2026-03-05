@@ -1,14 +1,12 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 
 import {
+  Custom,
   Formula,
   Provider,
   InlineFormula,
   InlineVariable,
-  register,
-  VisualizationComponent,
   type Config,
-  type IContext,
 } from "math-notation";
 
 // ============================================================================
@@ -104,38 +102,20 @@ function isValidRaceOrder(getVariable: (name: string) => number): boolean {
   return ranks.size === 12;
 }
 
-/**
- * Race Order Visualization - Custom visualization component using IContext API
- * This is the proper way to build custom visualizations in Formulize.
- * The component receives an IContext with getVariable/updateVariable methods,
- * and the Canvas wrapper handles reactivity automatically.
- */
-const RaceOrderVisualizationInner: React.FC<{ context: IContext }> = ({
-  context,
-}) => {
-  const [raceOrder, setRaceOrder] = useState<RacePosition[]>([]);
+const RaceOrderVisualizationInner = Custom(({ vars }) => {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [isValid, setIsValid] = useState(true);
 
-  // Helper to get variable value from context
+  // Helper to get variable value
   const getVar = useCallback(
     (name: string): number => {
-      return context.getVariable(name) ?? 0;
+      const value = vars[name];
+      return typeof value === "number" ? value : 0;
     },
-    [context],
+    [vars],
   );
 
-  // Sync from context variables to visualization state
-  // This runs on every render when context.variables changes (handled by Canvas)
-  useEffect(() => {
-    const valid = isValidRaceOrder(getVar);
-    setIsValid(valid);
-
-    if (valid) {
-      const order = variablesToRaceOrder(getVar);
-      setRaceOrder(order);
-    }
-  }, [context.variables, getVar]);
+  const isValid = isValidRaceOrder(getVar);
+  const raceOrder = isValid ? variablesToRaceOrder(getVar) : [];
 
   // Update formula variables when race order changes via drag
   const updateFormulaFromRaceOrder = useCallback(
@@ -147,15 +127,15 @@ const RaceOrderVisualizationInner: React.FC<{ context: IContext }> = ({
 
       // Update tortoise variables
       tortoiseRanks.forEach((rank, i) => {
-        context.updateVariable(`t_${i + 1}`, rank);
+        vars[`t_${i + 1}`] = rank;
       });
 
       // Update hare variables
       hareRanks.forEach((rank, i) => {
-        context.updateVariable(`h_${i + 1}`, rank);
+        vars[`h_${i + 1}`] = rank;
       });
     },
-    [context],
+    [vars],
   );
 
   // Handle drag start
@@ -187,7 +167,6 @@ const RaceOrderVisualizationInner: React.FC<{ context: IContext }> = ({
     };
     newOrder[targetIndex] = { ...newOrder[targetIndex], animal: draggedAnimal };
 
-    setRaceOrder(newOrder);
     updateFormulaFromRaceOrder(newOrder);
     setDraggedIndex(null);
   };
@@ -273,10 +252,7 @@ const RaceOrderVisualizationInner: React.FC<{ context: IContext }> = ({
       </div>
     </div>
   );
-};
-
-// Register the custom visualization with Formulize
-register("RaceOrderVisualization", RaceOrderVisualizationInner);
+});
 
 // ============================================================================
 // Mann-Whitney U Test Example
@@ -562,29 +538,7 @@ export const MannWhitneyExample: React.FC = () => {
         </div>
 
         {/* Interactive Race Order Visualization */}
-        <VisualizationComponent
-          type="custom"
-          config={{
-            id: "race-order",
-            type: "custom",
-            component: "RaceOrderVisualization",
-            variables: [
-              "t_1",
-              "t_2",
-              "t_3",
-              "t_4",
-              "t_5",
-              "t_6",
-              "h_1",
-              "h_2",
-              "h_3",
-              "h_4",
-              "h_5",
-              "h_6",
-            ],
-            update: { onVariableChange: true },
-          }}
-        />
+        <RaceOrderVisualizationInner />
 
         <div className="max-w-none text-lg text-gray-700 leading-relaxed">
           <p className="mb-6">

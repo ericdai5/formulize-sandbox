@@ -2,14 +2,12 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as d3 from "d3";
 
 import {
+  Custom,
   Formula,
   Provider,
   InlineFormula,
   InlineVariable,
   type Config,
-  type IContext,
-  register,
-  VisualizationComponent,
 } from "math-notation";
 
 const bayesConfig: Config = {
@@ -103,34 +101,10 @@ const bayesConfig: Config = {
     vars["P(B \\cap \\neg A)"] = pBandNotA;
     vars["P(\\neg A \\cap \\neg B)"] = pNotAandNotB;
   },
-  visualizations: [
-    {
-      type: "custom" as const,
-      id: "bayes-probability-chart",
-      component: "BayesProbabilityChart",
-      variables: [
-        "P(A)",
-        "P(B)",
-        "P(A \\cap B)",
-        "P(A \\cap \\neg B)",
-        "P(B \\cap \\neg A)",
-        "P(\\neg A \\cap \\neg B)",
-      ],
-      update: {
-        onVariableChange: true,
-      },
-    },
-  ],
 };
 
 // BayesProbabilityChart - Custom visualization component
-interface BayesProbabilityChartProps {
-  context: IContext;
-}
-
-const BayesProbabilityChart: React.FC<BayesProbabilityChartProps> = ({
-  context,
-}) => {
+const BayesProbabilityChart = Custom(({ vars }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const animationRef = useRef<number>();
   const ballIdRef = useRef(0);
@@ -146,14 +120,14 @@ const BayesProbabilityChart: React.FC<BayesProbabilityChartProps> = ({
     total: 0,
   });
 
-  // Get probabilities from context
+  // Get probabilities from vars
   const getContextProbabilities = () => {
-    const pA = context.getVariable("P(A)") || 0.2;
-    const pB = context.getVariable("P(B)") || 0.2;
-    const pAandB = context.getVariable("P(A \\cap B)") || 0.1;
-    const pAandNotB = context.getVariable("P(A \\cap \\neg B)") || 0.1;
-    const pBandNotA = context.getVariable("P(B \\cap \\neg A)") || 0.1;
-    const pNotAandNotB = context.getVariable("P(\\neg A \\cap \\neg B)") || 0.7;
+    const pA = vars["P(A)"] || 0.2;
+    const pB = vars["P(B)"] || 0.2;
+    const pAandB = vars["P(A \\cap B)"] || 0.1;
+    const pAandNotB = vars["P(A \\cap \\neg B)"] || 0.1;
+    const pBandNotA = vars["P(B \\cap \\neg A)"] || 0.1;
+    const pNotAandNotB = vars["P(\\neg A \\cap \\neg B)"] || 0.7;
     return {
       pA,
       pB,
@@ -586,7 +560,7 @@ const BayesProbabilityChart: React.FC<BayesProbabilityChartProps> = ({
       </div>
     </div>
   );
-};
+});
 
 // Types and constants needed for BayesProbabilityChart
 interface Ball {
@@ -631,13 +605,6 @@ const COLORS = {
   purple: "#9B59B6",
   gray: "#CCCCCC",
 };
-
-// Register the custom component immediately when the module loads
-try {
-  register("BayesProbabilityChart", BayesProbabilityChart);
-} catch (error) {
-  console.warn("Failed to register BayesProbabilityChart:", error);
-}
 
 export const BayesVisualizationExample: React.FC = () => {
   return (
@@ -694,11 +661,11 @@ export const BayesVisualizationExample: React.FC = () => {
           {/* Formulas Column */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold mb-2">Key Formulas</h3>
-            <Formula id="bayes-theorem" style={{ height: "120px" }} />
-            <Formula id="conditional-probability" style={{ height: "120px" }} />
-            <Formula id="a-and-not-b" style={{ height: "100px" }} />
-            <Formula id="b-and-not-a" style={{ height: "100px" }} />
-            <Formula id="not-a-and-not-b" style={{ height: "100px" }} />
+            <Formula id="bayes-theorem" />
+            <Formula id="conditional-probability" />
+            <Formula id="a-and-not-b" />
+            <Formula id="b-and-not-a" />
+            <Formula id="not-a-and-not-b" />
           </div>
 
           {/* Visualization Column */}
@@ -706,25 +673,7 @@ export const BayesVisualizationExample: React.FC = () => {
             <h3 className="text-lg font-semibold mb-2">
               Interactive Probability Simulation
             </h3>
-            <VisualizationComponent
-              type="custom"
-              config={{
-                type: "custom",
-                id: "bayes-probability-chart",
-                component: "BayesProbabilityChart",
-                variables: [
-                  "P(A)",
-                  "P(B)",
-                  "P(A \\cap B)",
-                  "P(A \\cap \\neg B)",
-                  "P(B \\cap \\neg A)",
-                  "P(\\neg A \\cap \\neg B)",
-                ],
-                update: {
-                  onVariableChange: true,
-                },
-              }}
-            />
+            <BayesProbabilityChart />
             <p className="text-sm text-gray-600 mt-4">
               Watch balls fall through event shelves A and B to visualize
               probability distributions. The simulation shows how events

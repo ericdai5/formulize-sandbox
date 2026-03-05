@@ -5,13 +5,12 @@ import {
   Provider,
   InlineVariable,
   StepControl,
-  VisualizationComponent,
+  Graph,
   type Config,
-  type IPlot2D,
+  type IGraph2D,
 } from "math-notation";
 
-const combinedPlotConfig: IPlot2D = {
-  type: "plot2d",
+const combinedPlotConfig: IGraph2D = {
   id: "loss-gradient-plot",
   title: "Loss & Gradient vs Weight",
   xAxisLabel: "w",
@@ -26,22 +25,21 @@ const combinedPlotConfig: IPlot2D = {
   yGrid: "show",
   width: 560,
   height: 400,
-  graphs: [
+  lines: [
     {
-      type: "line",
-      id: "loss",
+      dataId: "loss",
       parameter: "w_t",
       color: "#ef4444", // Red for loss (parabola)
     },
     {
-      type: "line",
-      id: "gradient",
+      dataId: "gradient",
       parameter: "w_t",
       color: "#f97316", // Orange for gradient (linear)
     },
+  ],
+  points: [
     {
-      type: "point",
-      id: "testing",
+      dataId: "testing",
       stepId: "weight-update",
       persistence: true,
       color: "#3b82f6", // Blue
@@ -224,7 +222,7 @@ const gradientDescentConfig: Config = {
     return w_t;
   },
   // Add visualizations to the config
-  visualizations: [combinedPlotConfig],
+  graph2d: [combinedPlotConfig],
   fontSize: 1.3,
   labelFontSize: 1,
 };
@@ -244,14 +242,37 @@ const GradientDescentContent: React.FC = () => {
       </header>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Formula id="loss-function" style={{ height: "200px", flex: 1 }} />
-          <Formula id="gradient" style={{ height: "200px", flex: 1 }} />
-          <Formula id="update-rule" style={{ height: "200px", flex: 1 }} />
+          <Formula
+            id="loss-function"
+            style={{
+              height: "200px",
+              width: "100%",
+              border: "1px solid #eee",
+              borderRadius: "0.5rem",
+            }}
+          />
+          <Formula
+            id="gradient"
+            style={{
+              height: "200px",
+              width: "100%",
+              border: "1px solid #eee",
+              borderRadius: "0.5rem",
+            }}
+          />
+          <Formula
+            id="update-rule"
+            style={{
+              height: "200px",
+              width: "100%",
+              border: "1px solid #eee",
+              borderRadius: "0.5rem",
+            }}
+          />
         </div>
         <div className="space-y-4">
-          <VisualizationComponent
-            type="plot2d"
-            config={combinedPlotConfig}
+          <Graph
+            id={combinedPlotConfig.id}
             style={{ width: "100%", height: "500px" }}
           />
           <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-600">

@@ -1,17 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import {
+  Custom,
   Formula,
   Provider,
-  VisualizationComponent,
   InlineVariable,
   EmbeddedFormula,
   Variable,
-  register,
   type Config,
   type IFormula,
   type IVariablesUserInput,
-  type IContext,
 } from "math-notation";
 
 /**
@@ -54,10 +52,6 @@ const COLORS = {
 // Custom Neural Network Visualization
 // =============================================================================
 
-interface NeuralNetworkVizProps {
-  context: IContext;
-}
-
 interface NodeInfo {
   id: string;
   layer: number;
@@ -69,11 +63,10 @@ interface NodeInfo {
   formulaId?: string;
 }
 
-const NeuralNetworkViz: React.FC<NeuralNetworkVizProps> = ({ context }) => {
+const NeuralNetworkViz = Custom(({ vars }) => {
   const [nodes, setNodes] = useState<NodeInfo[]>([]);
 
-  const layers: number[] =
-    (context.config as { layers?: number[] })?.layers || LAYERS;
+  const layers = LAYERS;
 
   // Build node positions - spread across available space
   useEffect(() => {
@@ -120,7 +113,7 @@ const NeuralNetworkViz: React.FC<NeuralNetworkVizProps> = ({ context }) => {
     setNodes(nodeList);
   }, [layers]);
 
-  // Generate edges using context.variables (provided by Formulize Canvas)
+  // Generate edges using vars injected by Custom.define
   const edges: {
     key: string;
     x1: number;
@@ -138,8 +131,7 @@ const NeuralNetworkViz: React.FC<NeuralNetworkVizProps> = ({ context }) => {
     for (const curr of currNodes) {
       for (const prev of prevNodes) {
         const weightId = `w_{${curr.unit},${prev.unit},${l}}`;
-        // Read from context.variables - this is updated by Formulize's Canvas
-        const weight = context.variables[weightId] ?? 0;
+        const weight = vars[weightId] ?? 0;
 
         const color =
           weight > 0.05
@@ -204,8 +196,7 @@ const NeuralNetworkViz: React.FC<NeuralNetworkVizProps> = ({ context }) => {
       {/* Nodes */}
       <g className="nodes">
         {nodes.map((node) => {
-          // Read from context.variables - updated by Formulize Canvas on changes
-          const val = context.variables[node.variableId];
+          const val = vars[node.variableId];
           const displayVal = typeof val === "number" ? val.toFixed(2) : "?";
 
           return (
@@ -311,10 +302,7 @@ const NeuralNetworkViz: React.FC<NeuralNetworkVizProps> = ({ context }) => {
       </g>
     </svg>
   );
-};
-
-// Register the visualization
-register("NeuralNetwork", NeuralNetworkViz);
+});
 
 // =============================================================================
 // Generate Neural Network Configuration
@@ -428,15 +416,6 @@ export const NeuralNetworkExample: React.FC = () => {
       formulas,
       variables,
       semantics: ({ vars }) => manual(vars),
-      visualizations: [
-        {
-          type: "custom" as const,
-          component: "NeuralNetwork",
-          variables: Object.keys(variables),
-          update: { onVariableChange: true },
-          config: { layers: LAYERS },
-        },
-      ],
     }),
     [formulas, variables, manual],
   );
@@ -477,11 +456,9 @@ export const NeuralNetworkExample: React.FC = () => {
 
         {/* Visualization */}
         <div className="my-10">
-          <VisualizationComponent
-            type="custom"
-            config={config.visualizations![0]}
-            height={750}
-          />
+          <div className="h-[750px]">
+            <NeuralNetworkViz />
+          </div>
         </div>
 
         <div className="max-w-none text-lg text-gray-700 leading-relaxed">
