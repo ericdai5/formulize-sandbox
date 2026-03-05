@@ -39,9 +39,9 @@ const kineticConfig: Config = {
       name: "Velocity",
     },
   },
-  semantics: function ({ vars, data2d }) {
+  semantics: function ({ vars, sample }) {
     vars.K = 0.5 * vars.m * Math.pow(vars.v, 2);
-    data2d("energy", { x: vars.v, y: vars.K });
+    sample("energy", { x: vars.v, y: vars.K });
   },
   graph2d: [
     {
@@ -50,7 +50,7 @@ const kineticConfig: Config = {
       yAxisVar: "K",
       lines: [
         {
-          dataId: "energy",
+          sampleId: "energy",
           parameter: "v",
           samples: 100,
           interaction: ["vertical-drag", "m"],
@@ -58,7 +58,7 @@ const kineticConfig: Config = {
       ],
       points: [
         {
-          dataId: "energy",
+          sampleId: "energy",
           interaction: ["horizontal-drag", "v"],
         },
       ],
@@ -165,8 +165,9 @@ const radioactiveDecayConfig: Config = {
       svgMode: "replace",
     },
   },
-  semantics: function ({ vars }) {
+  semantics: function ({ vars, sample }) {
     vars.N = vars.N_0 * Math.exp(-vars["\\lambda"] * vars.t);
+    sample("decay", { x: vars.t, y: vars.N });
   },
   graph2d: [
     {
@@ -180,14 +181,14 @@ const radioactiveDecayConfig: Config = {
       lines: [
         {
           color: "#7FFF00",
-          dataId: "decay",
+          sampleId: "decay",
           parameter: "t",
           interaction: ["vertical-drag", "N_0"],
         },
       ],
       points: [
         {
-          dataId: "decay",
+          sampleId: "decay",
           interaction: ["horizontal-drag", "t"],
         },
       ],
@@ -219,13 +220,9 @@ export const Kinetic2DExample: React.FC = () => {
               id="kinetic-energy"
               style={{ height: "200px", width: "300px" }}
             />
-            {kineticConfig.graph2d &&
-              kineticConfig.graph2d[0] && (
-                <Graph
-                  id={kineticConfig.graph2d[0].id}
-                  height={400}
-                />
-              )}
+            {kineticConfig.graph2d && kineticConfig.graph2d[0] && (
+              <Graph id={kineticConfig.graph2d[0].id} height={400} />
+            )}
           </div>
         </div>
       </Provider>
@@ -250,10 +247,7 @@ export const Kinetic2DExample: React.FC = () => {
             <Formula id="radioactive-decay" style={{ height: "250px" }} />
             {radioactiveDecayConfig.graph2d &&
               radioactiveDecayConfig.graph2d[0] && (
-                <Graph
-                  id={radioactiveDecayConfig.graph2d[0].id}
-                  height={400}
-                />
+                <Graph id={radioactiveDecayConfig.graph2d[0].id} height={400} />
               )}
           </div>
         </div>

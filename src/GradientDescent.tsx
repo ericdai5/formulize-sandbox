@@ -12,7 +12,6 @@ import {
 
 const combinedPlotConfig: IGraph2D = {
   id: "loss-gradient-plot",
-  title: "Loss & Gradient vs Weight",
   xAxisLabel: "w",
   xAxisVar: "w_t",
   xRange: [-0.5, 2.5],
@@ -27,19 +26,19 @@ const combinedPlotConfig: IGraph2D = {
   height: 400,
   lines: [
     {
-      dataId: "loss",
+      sampleId: "loss",
       parameter: "w_t",
       color: "#ef4444", // Red for loss (parabola)
     },
     {
-      dataId: "gradient",
+      sampleId: "gradient",
       parameter: "w_t",
       color: "#f97316", // Orange for gradient (linear)
     },
   ],
   points: [
     {
-      dataId: "testing",
+      sampleId: "testing",
       stepId: "weight-update",
       persistence: true,
       color: "#3b82f6", // Blue
@@ -121,7 +120,7 @@ const gradientDescentConfig: Config = {
     },
   },
   stepping: true,
-  semantics: function ({ vars, data2d, step }) {
+  semantics: function ({ vars, sample, step }) {
     var x = vars.x;
     var y = vars.y;
     var alpha = vars["\\alpha"];
@@ -148,9 +147,9 @@ const gradientDescentConfig: Config = {
           labels: { L: L },
         },
       });
-      data2d("loss", { x: w_t, y: L });
+      sample("loss", { x: w_t, y: L });
       var nablaL = -2 * x * error;
-      data2d("gradient", { x: w_t, y: nablaL });
+      sample("gradient", { x: w_t, y: nablaL });
       step({
         "loss-function": {
           description: "$Error = y - prediction = " + error.toFixed(2) + "$",
@@ -187,7 +186,7 @@ const gradientDescentConfig: Config = {
         },
       });
       var w_t_plus_1 = w_t - stepSize;
-      data2d("testing", { x: w_t, y: L });
+      sample("testing", { x: w_t, y: L });
       step(
         {
           "update-rule": {

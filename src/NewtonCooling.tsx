@@ -391,7 +391,7 @@ const newtonPlotConfig: IGraph2D = {
   width: 360,
   lines: [
     {
-      dataId: "temperature",
+      sampleId: "temperature",
       parameter: "t",
       color: "#e74c3c",
       interaction: ["vertical-drag", "T_0"],
@@ -399,7 +399,7 @@ const newtonPlotConfig: IGraph2D = {
   ],
   points: [
     {
-      dataId: "temperature",
+      sampleId: "temperature",
       color: "#e74c3c",
       interaction: ["horizontal-drag", "t"],
     },
@@ -469,11 +469,11 @@ const newtonCoolingConfig: Config = {
       svgSize: { width: 40, height: 40 },
     },
   },
-  semantics: function ({ vars, data2d }) {
+  semantics: function ({ vars, sample }) {
     vars["T(t)"] =
       vars["T_{env}"] +
       (vars.T_0 - vars["T_{env}"]) * Math.exp(-vars.k * vars.t);
-    data2d("temperature", { x: vars.t, y: vars["T(t)"] });
+    sample("temperature", { x: vars.t, y: vars["T(t)"] });
   },
   graph2d: [newtonPlotConfig],
   fontSize: 1.4,
