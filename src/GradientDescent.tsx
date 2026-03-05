@@ -2,18 +2,16 @@ import React from "react";
 
 import {
   Formula,
-  FormulizeProvider,
+  Provider,
   InlineVariable,
   StepControl,
-  VisualizationComponent,
-  type FormulizeConfig,
-  type IPlot2D,
-} from "formulize-math";
+  Graph,
+  type Config,
+  type IGraph2D,
+} from "math-notation";
 
-const combinedPlotConfig: IPlot2D = {
-  type: "plot2d",
+const combinedPlotConfig: IGraph2D = {
   id: "loss-gradient-plot",
-  title: "Loss & Gradient vs Weight",
   xAxisLabel: "w",
   xAxisVar: "w_t",
   xRange: [-0.5, 2.5],
@@ -26,22 +24,21 @@ const combinedPlotConfig: IPlot2D = {
   yGrid: "show",
   width: 560,
   height: 400,
-  graphs: [
+  lines: [
     {
-      type: "line",
-      id: "loss",
+      sampleId: "loss",
       parameter: "w_t",
       color: "#ef4444", // Red for loss (parabola)
     },
     {
-      type: "line",
-      id: "gradient",
+      sampleId: "gradient",
       parameter: "w_t",
       color: "#f97316", // Orange for gradient (linear)
     },
+  ],
+  points: [
     {
-      type: "point",
-      id: "testing",
+      sampleId: "testing",
       stepId: "weight-update",
       persistence: true,
       color: "#3b82f6", // Blue
@@ -49,7 +46,7 @@ const combinedPlotConfig: IPlot2D = {
   ],
 };
 
-const gradientDescentConfig: FormulizeConfig = {
+const gradientDescentConfig: Config = {
   formulas: [
     {
       id: "loss-function",
@@ -123,7 +120,7 @@ const gradientDescentConfig: FormulizeConfig = {
     },
   },
   stepping: true,
-  semantics: function ({ vars, data2d, step }) {
+  semantics: function ({ vars, sample, step }) {
     var x = vars.x;
     var y = vars.y;
     var alpha = vars["\\alpha"];
@@ -136,75 +133,73 @@ const gradientDescentConfig: FormulizeConfig = {
       step({
         "loss-function": {
           description: "$Error = y - prediction = " + error.toFixed(2) + "$",
-          values: [
-            ["y", y],
-            ["w_t", w_t],
-            ["x", x],
-          ],
+          labels: {
+            y: y,
+            w_t: w_t,
+            x: x,
+          },
         },
       });
       var L = error * error;
       step({
         "loss-function": {
           description: "$Error^2 = " + L.toFixed(2) + "$",
-          values: [["L", L]],
+          labels: { L: L },
         },
       });
-      data2d("loss", { x: w_t, y: L });
+      sample("loss", { x: w_t, y: L });
       var nablaL = -2 * x * error;
-      data2d("gradient", { x: w_t, y: nablaL });
+      sample("gradient", { x: w_t, y: nablaL });
       step({
         "loss-function": {
           description: "$Error = y - prediction = " + error.toFixed(2) + "$",
-          values: [
-            ["y", y],
-            ["w_t", w_t],
-            ["x", x],
-          ],
+          labels: {
+            y: y,
+            w_t: w_t,
+            x: x,
+          },
         },
         gradient: {
-          description:
-            "$-2 \\cdot " +
-            x.toFixed(2) +
-            " \\cdot " +
-            error.toFixed(2) +
-            " = " +
-            nablaL.toFixed(2) +
-            "$",
-          values: [["\\nabla L", nablaL]],
-          expression: "-2x(y - w_t \\cdot x)",
+          description: "Calculating gradient",
+          labels: {
+            "\\nabla L": nablaL,
+            "-2x(y - w_t \\cdot x)":
+              "$-2 \\cdot " +
+              x.toFixed(2) +
+              " \\cdot " +
+              error.toFixed(2) +
+              " = " +
+              nablaL.toFixed(2) +
+              "$",
+          },
         },
       });
       var stepSize = alpha * nablaL;
       step({
         "update-rule": {
-          description:
-            "Calculating step: $\\alpha \\cdot \\nabla L = " +
-            stepSize.toFixed(2) +
-            "$",
-          values: [
-            ["\\alpha", alpha],
-            ["\\nabla L", nablaL],
-          ],
-          expression: "\\alpha \\cdot \\nabla L",
+          labels: {
+            "\\alpha": alpha,
+            "\\nabla L": nablaL,
+            "\\alpha \\cdot \\nabla L":
+              "Calculating step = $" + stepSize.toFixed(2) + "$",
+          },
         },
       });
       var w_t_plus_1 = w_t - stepSize;
-      data2d("testing", { x: w_t, y: L });
+      sample("testing", { x: w_t, y: L });
       step(
         {
           "update-rule": {
-            description:
-              "Calculated next weight $w_{t+1} = " +
-              w_t_plus_1.toFixed(2) +
-              "$",
-            values: [
-              ["w_{t+1}", w_t_plus_1],
-              ["w_t", w_t],
-              ["t", t],
-              ["t+1", t_plus_1],
-            ],
-            expression: "w_{t+1} = w_t - \\alpha \\cdot \\nabla L",
+            labels: {
+              "w_{t+1}": w_t_plus_1,
+              w_t: w_t,
+              t: t,
+              "t+1": t_plus_1,
+              "w_{t+1} = w_t - \\alpha \\cdot \\nabla L":
+                "Calculated next weight $w_{t+1} = " +
+                w_t_plus_1.toFixed(2) +
+                "$",
+            },
           },
         },
         "weight-update",
@@ -220,13 +215,13 @@ const gradientDescentConfig: FormulizeConfig = {
           " iterations: $w_t = " +
           w_t.toFixed(2) +
           "$",
-        values: [["w_t", w_t]],
+        labels: { w_t: w_t },
       },
     });
     return w_t;
   },
   // Add visualizations to the config
-  visualizations: [combinedPlotConfig],
+  graph2d: [combinedPlotConfig],
   fontSize: 1.3,
   labelFontSize: 1,
 };
@@ -246,14 +241,37 @@ const GradientDescentContent: React.FC = () => {
       </header>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Formula id="loss-function" style={{ height: "200px", flex: 1 }} />
-          <Formula id="gradient" style={{ height: "200px", flex: 1 }} />
-          <Formula id="update-rule" style={{ height: "200px", flex: 1 }} />
+          <Formula
+            id="loss-function"
+            style={{
+              height: "200px",
+              width: "100%",
+              border: "1px solid #eee",
+              borderRadius: "0.5rem",
+            }}
+          />
+          <Formula
+            id="gradient"
+            style={{
+              height: "200px",
+              width: "100%",
+              border: "1px solid #eee",
+              borderRadius: "0.5rem",
+            }}
+          />
+          <Formula
+            id="update-rule"
+            style={{
+              height: "200px",
+              width: "100%",
+              border: "1px solid #eee",
+              borderRadius: "0.5rem",
+            }}
+          />
         </div>
         <div className="space-y-4">
-          <VisualizationComponent
-            type="plot2d"
-            config={combinedPlotConfig}
+          <Graph
+            id={combinedPlotConfig.id}
             style={{ width: "100%", height: "500px" }}
           />
           <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-600">
@@ -277,9 +295,9 @@ const GradientDescentContent: React.FC = () => {
 
 export const GradientDescentExample: React.FC = () => {
   return (
-    <FormulizeProvider config={gradientDescentConfig}>
+    <Provider config={gradientDescentConfig}>
       <GradientDescentContent />
-    </FormulizeProvider>
+    </Provider>
   );
 };
 

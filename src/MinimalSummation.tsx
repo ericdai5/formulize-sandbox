@@ -1,13 +1,13 @@
 import React from "react";
 import {
   Formula,
-  FormulizeProvider,
+  Provider,
   StepControl,
-  type FormulizeConfig,
-} from "formulize-math";
+  type Config,
+} from "math-notation";
 
 // First config: Expected Value with 10 items
-const config1: FormulizeConfig = {
+const config1: Config = {
   formulas: [
     {
       id: "summation-basic",
@@ -59,17 +59,17 @@ const config1: FormulizeConfig = {
       var xi = xValues[i];
       var probability = pxValues[i];
       if (i === 0) {
-        step({ description: "Get a value x from X:", values: [["x", xi]] });
+        step({ description: "Get a value x from X:", labels: { x: xi } });
         step({
           description: "Get a value P(x) from P(x):",
-          values: [["P(x)", probability]],
+          labels: { "P(x)": probability },
         });
       }
       var currExpected = Math.round(xi * probability * 100) / 100;
       if (i === 0) {
         step({
           description: "This evaluates to:",
-          values: [["c", currExpected]],
+          labels: { c: currExpected },
         });
       }
       expectedValue = Math.round((expectedValue + currExpected) * 100) / 100;
@@ -77,19 +77,19 @@ const config1: FormulizeConfig = {
         case 0:
           step({
             description: "add up term into E:",
-            values: [["E", expectedValue]],
+            labels: { E: expectedValue },
           });
           break;
         case 1:
           step({
             description: "add next term...",
-            values: [["E", expectedValue]],
+            labels: { E: expectedValue },
           });
           break;
         case xValues.length - 1:
           step({
             description: "finish accumulating weighted sum:",
-            values: [["E", expectedValue]],
+            labels: { E: expectedValue },
           });
           break;
       }
@@ -100,7 +100,7 @@ const config1: FormulizeConfig = {
 };
 
 // Second config: Simple summation with 5 items (different formula)
-const config2: FormulizeConfig = {
+const config2: Config = {
   formulas: [
     {
       id: "sum-basic",
@@ -139,9 +139,9 @@ const config2: FormulizeConfig = {
     var values = vars.a_i;
     for (var i = 0; i < values.length; i++) {
       var a = values[i];
-      step({ description: "Current element:", values: [["a_i", a]] });
+      step({ description: "Current element:", labels: { a_i: a } });
       sum = sum + a;
-      step({ description: "Running sum:", values: [["S", sum]] });
+      step({ description: "Running sum:", labels: { S: sum } });
     }
     vars.S = sum;
   },
@@ -159,7 +159,7 @@ const MinimalSummation: React.FC = () => {
         <h2 className="text-lg font-semibold text-blue-800 mb-4">
           Formula 1: Expected Value
         </h2>
-        <FormulizeProvider config={config1}>
+        <Provider config={config1}>
           <div className="flex flex-col gap-4">
             <Formula
               id="summation-basic"
@@ -167,14 +167,14 @@ const MinimalSummation: React.FC = () => {
             />
             <StepControl />
           </div>
-        </FormulizeProvider>
+        </Provider>
       </div>
       {/* Second Formulize Provider - Simple Sum */}
       <div className="border-2 border-green-200 rounded-lg p-4 bg-green-50">
         <h2 className="text-lg font-semibold text-green-800 mb-4">
           Formula 2: Simple Summation
         </h2>
-        <FormulizeProvider config={config2}>
+        <Provider config={config2}>
           <div className="flex flex-col gap-4">
             <Formula
               id="sum-basic"
@@ -182,7 +182,7 @@ const MinimalSummation: React.FC = () => {
             />
             <StepControl />
           </div>
-        </FormulizeProvider>
+        </Provider>
       </div>
     </div>
   );

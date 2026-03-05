@@ -2,14 +2,14 @@ import React from "react";
 
 import {
   Formula,
-  FormulizeProvider,
-  VisualizationComponent,
+  Provider,
+  Graph,
   InlineFormula,
   InlineVariable,
-  type FormulizeConfig,
-} from "formulize-math";
+  type Config,
+} from "math-notation";
 
-const kineticConfig: FormulizeConfig = {
+const kineticConfig: Config = {
   formulas: [
     {
       id: "kinetic-energy",
@@ -39,26 +39,26 @@ const kineticConfig: FormulizeConfig = {
       name: "Velocity",
     },
   },
-  semantics: function ({ vars, data2d }) {
+  semantics: function ({ vars, sample }) {
     vars.K = 0.5 * vars.m * Math.pow(vars.v, 2);
-    data2d("energy", { x: vars.v, y: vars.K });
+    sample("energy", { x: vars.v, y: vars.K });
   },
-  visualizations: [
+  graph2d: [
     {
-      type: "plot2d" as const,
+      id: "energyGraph",
       xAxisVar: "v",
       yAxisVar: "K",
-      graphs: [
+      lines: [
         {
-          type: "line",
-          id: "energy",
+          sampleId: "energy",
           parameter: "v",
           samples: 100,
           interaction: ["vertical-drag", "m"],
         },
+      ],
+      points: [
         {
-          type: "point",
-          id: "energy",
+          sampleId: "energy",
           interaction: ["horizontal-drag", "v"],
         },
       ],
@@ -68,7 +68,7 @@ const kineticConfig: FormulizeConfig = {
 };
 
 // SVG Integration: Radioactive Decay Example
-const radioactiveDecayConfig: FormulizeConfig = {
+const radioactiveDecayConfig: Config = {
   formulas: [
     {
       id: "radioactive-decay",
@@ -165,29 +165,30 @@ const radioactiveDecayConfig: FormulizeConfig = {
       svgMode: "replace",
     },
   },
-  semantics: function ({ vars }) {
+  semantics: function ({ vars, sample }) {
     vars.N = vars.N_0 * Math.exp(-vars["\\lambda"] * vars.t);
+    sample("decay", { x: vars.t, y: vars.N });
   },
-  visualizations: [
+  graph2d: [
     {
-      type: "plot2d" as const,
+      id: "decayGraph",
       xAxisVar: "t",
       xRange: [0, 50],
       xGrid: "show",
       yAxisVar: "N",
       yRange: [0, 1100],
       yGrid: "show",
-      graphs: [
+      lines: [
         {
-          type: "line",
           color: "#7FFF00",
-          id: "decay",
+          sampleId: "decay",
           parameter: "t",
           interaction: ["vertical-drag", "N_0"],
         },
+      ],
+      points: [
         {
-          type: "point",
-          id: "decay",
+          sampleId: "decay",
           interaction: ["horizontal-drag", "t"],
         },
       ],
@@ -200,7 +201,7 @@ export const Kinetic2DExample: React.FC = () => {
   return (
     <div className="space-y-12">
       {/* Kinetic Energy Section */}
-      <FormulizeProvider config={kineticConfig}>
+      <Provider config={kineticConfig}>
         <div className="rounded-xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
             Kinetic Energy
@@ -219,20 +220,15 @@ export const Kinetic2DExample: React.FC = () => {
               id="kinetic-energy"
               style={{ height: "200px", width: "300px" }}
             />
-            {kineticConfig.visualizations &&
-              kineticConfig.visualizations[0] && (
-                <VisualizationComponent
-                  type="plot2d"
-                  config={kineticConfig.visualizations[0]}
-                  height={400}
-                />
-              )}
+            {kineticConfig.graph2d && kineticConfig.graph2d[0] && (
+              <Graph id={kineticConfig.graph2d[0].id} height={400} />
+            )}
           </div>
         </div>
-      </FormulizeProvider>
+      </Provider>
 
       {/* Radioactive Decay Section with SVG Integration */}
-      <FormulizeProvider config={radioactiveDecayConfig}>
+      <Provider config={radioactiveDecayConfig}>
         <div className="rounded-xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
             Radioactive Decay (SVG Integration)
@@ -249,17 +245,13 @@ export const Kinetic2DExample: React.FC = () => {
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
             <Formula id="radioactive-decay" style={{ height: "250px" }} />
-            {radioactiveDecayConfig.visualizations &&
-              radioactiveDecayConfig.visualizations[0] && (
-                <VisualizationComponent
-                  type="plot2d"
-                  config={radioactiveDecayConfig.visualizations[0]}
-                  height={400}
-                />
+            {radioactiveDecayConfig.graph2d &&
+              radioactiveDecayConfig.graph2d[0] && (
+                <Graph id={radioactiveDecayConfig.graph2d[0].id} height={400} />
               )}
           </div>
         </div>
-      </FormulizeProvider>
+      </Provider>
     </div>
   );
 };

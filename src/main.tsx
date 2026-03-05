@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import "formulize-math/style.css";
+import "math-notation/style.css";
 import "./index.css";
 import App from "./App.tsx";
 
