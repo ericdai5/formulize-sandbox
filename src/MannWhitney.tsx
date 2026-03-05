@@ -115,7 +115,8 @@ const RaceOrderVisualizationInner = Custom(({ vars }) => {
   );
 
   const isValid = isValidRaceOrder(getVar);
-  const raceOrder = isValid ? variablesToRaceOrder(getVar) : [];
+  // Keep rendering the current state even when invalid so users can see duplicates.
+  const raceOrder = variablesToRaceOrder(getVar);
 
   // Update formula variables when race order changes via drag
   const updateFormulaFromRaceOrder = useCallback(
@@ -205,7 +206,7 @@ const RaceOrderVisualizationInner = Custom(({ vars }) => {
         {/* Race positions */}
         {raceOrder.map((pos, index) => (
           <div
-            key={pos.position}
+            key={`${pos.animal}-${pos.position}-${index}`}
             draggable
             onDragStart={(e) => handleDragStart(e, index)}
             onDragOver={handleDragOver}
