@@ -497,7 +497,7 @@ export const NewtonCoolingExample: React.FC = () => {
         <Provider config={newtonCoolingConfig}>
           <div className="space-y-8">
             {/* Main explanation card */}
-            <div className="bg-gray-50 rounded-2xl border border-gray-200 p-8 shadow-sm">
+            <div className="bg-white">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">
                 The Cooling Equation
               </h2>
@@ -514,14 +514,6 @@ export const NewtonCoolingExample: React.FC = () => {
                   determined by the cooling constant{" "}
                   <InlineVariable id="k" display="withUnits" />.
                 </p>
-                <p className="text-gray-500 text-sm mt-4">
-                  <strong className="text-gray-700">Key insight:</strong> The
-                  rate of cooling is proportional to the temperature difference.
-                  When the object is much hotter than its surroundings, it cools
-                  quickly. As it approaches room temperature, cooling slows
-                  dramatically—this is why your coffee stays lukewarm for so
-                  long!
-                </p>
               </div>
             </div>
             <div className="flex flex-row gap-4">
@@ -529,7 +521,7 @@ export const NewtonCoolingExample: React.FC = () => {
                 id="newton-cooling"
                 style={{ width: "500px", height: "500px" }}
               />
-              <div className="w-[240px] h-[500px] border border-slate-200 rounded-lg bg-white p-2">
+              <div className="w-[240px] h-[500px] bg-white p-2">
                 <StopwatchVisualization />
               </div>
               {/* Temperature vs Time Plot */}

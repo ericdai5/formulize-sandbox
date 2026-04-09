@@ -7,6 +7,7 @@ import BayesVisualizationExample from "./BayesVisualization";
 import MinimalSummation from "./MinimalSummation";
 import MannWhitneyExample from "./MannWhitney";
 import GradientDescentExample from "./GradientDescent";
+import GradientDescentSimpleExample from "./GradientDescentSimple";
 import NewtonCoolingExample from "./NewtonCooling";
 
 const examples = [
@@ -14,6 +15,7 @@ const examples = [
   { id: "mannwhitney", path: "/mannwhitney", label: "Mann-Whitney U Test" },
   { id: "newton-cooling", path: "/newton-cooling", label: "Newton's Law of Cooling" },
   { id: "gradient-descent", path: "/gradient-descent", label: "Gradient Descent" },
+  { id: "gradient-descent-simple", path: "/gradient-descent-simple", label: "Gradient Descent (Simple)" },
   { id: "kinetic", path: "/kinetic", label: "Kinetic Energy" },
   { id: "bayes", path: "/bayes", label: "Bayes Theorem" },
   { id: "summation", path: "/summation", label: "Summation" },
@@ -74,6 +76,7 @@ function App() {
           <Route path="/mannwhitney" element={<MannWhitneyExample />} />
           <Route path="/newton-cooling" element={<NewtonCoolingExample />} />
           <Route path="/gradient-descent" element={<GradientDescentExample />} />
+          <Route path="/gradient-descent-simple" element={<GradientDescentSimpleExample />} />
           <Route path="/kinetic" element={<Kinetic2DExample />} />
           <Route path="/bayes" element={<BayesVisualizationExample />} />
           <Route path="/summation" element={<MinimalSummation />} />

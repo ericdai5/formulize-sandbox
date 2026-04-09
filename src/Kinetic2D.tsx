@@ -23,12 +23,14 @@ const kineticConfig: Config = {
       precision: 2,
     },
     m: {
-      input: "drag",
+      input: "inline",
       default: 1,
       range: [0.1, 10],
       step: 1,
       units: "kg",
       name: "Mass",
+      latexDisplay: "value",
+      labelDisplay: "name",
     },
     v: {
       input: "drag",
