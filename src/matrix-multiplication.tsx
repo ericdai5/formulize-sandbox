@@ -92,7 +92,6 @@ const matrixConfig: Config = {
       vars["a_{32}"] * vars["b_{23}"] +
       vars["a_{33}"] * vars["b_{33}"];
   },
-  fontSize: 1.4,
 };
 
 const aKeys = [

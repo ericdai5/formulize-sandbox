@@ -79,7 +79,6 @@ const config: Config = {
     sample("vectorBEnd", { x: vars.b_x, y: vars.b_y });
     sample("vectorCPoint", { x: vars.c_x, y: vars.c_y });
   },
-  fontSize: 1.5,
   graph2d: [
     {
       id: "vectorPlot",
