@@ -179,7 +179,7 @@ const RaceOrderVisualizationInner = Custom(({ vars }) => {
   };
 
   return (
-    <div className="my-8 p-6 bg-white border rounded-xl">
+    <div className="my-8 p-6 bg-white border border-slate-200 rounded-xl">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-800">
           Race Finish Order

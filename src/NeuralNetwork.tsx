@@ -176,7 +176,7 @@ const NeuralNetworkViz = Custom(({ vars }) => {
       width={VIZ_CONFIG.width}
       height={VIZ_CONFIG.height}
       viewBox={`0 0 ${VIZ_CONFIG.width} ${VIZ_CONFIG.height}`}
-      className="border border-gray-200 rounded-lg bg-white mx-auto block"
+      className="border border-slate-200 rounded-lg bg-white mx-auto block"
     >
       {/* Edges */}
       <g className="edges">
@@ -544,7 +544,7 @@ export const NeuralNetworkExample: React.FC = () => {
           </p>
         </div>
 
-        <div className="my-8 bg-gray-50 rounded-xl p-4 border">
+        <div className="my-8 bg-gray-50 rounded-xl p-4 border border-slate-200">
           <Formula
             id="formula_h_1_1"
             style={{ height: "280px", width: "100%" }}

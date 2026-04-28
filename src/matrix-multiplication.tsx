@@ -138,13 +138,13 @@ const MatrixButtons = Custom(({ vars }) => {
     <div className="flex flex-wrap gap-2">
       <button
         onClick={resetAll}
-        className="px-4 py-2 bg-gradient-to-b from-white to-gray-100 hover:from-gray-100 hover:to-gray-200 text-gray-800 rounded-xl transition-all border border-slate-300"
+        className="px-4 py-2 bg-gradient-to-b from-white to-gray-100 hover:from-gray-100 hover:to-gray-200 text-gray-800 rounded-xl transition-all border border-slate-200"
       >
         Reset All to Zero
       </button>
       <button
         onClick={identityA}
-        className="px-4 py-2 bg-gradient-to-b from-white to-gray-100 hover:from-gray-100 hover:to-gray-200 text-gray-800 rounded-xl transition-all border border-slate-300"
+        className="px-4 py-2 bg-gradient-to-b from-white to-gray-100 hover:from-gray-100 hover:to-gray-200 text-gray-800 rounded-xl transition-all border border-slate-200"
       >
         Identity Matrix A
       </button>

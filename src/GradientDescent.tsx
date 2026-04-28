@@ -223,7 +223,7 @@ const GradientDescentContent: React.FC = () => {
             style={{
               height: "200px",
               width: "100%",
-              border: "1px solid #eee",
+              border: "1px solid #e2e8f0",
               borderRadius: "0.5rem",
             }}
           />
@@ -232,7 +232,7 @@ const GradientDescentContent: React.FC = () => {
             style={{
               height: "200px",
               width: "100%",
-              border: "1px solid #eee",
+              border: "1px solid #e2e8f0",
               borderRadius: "0.5rem",
             }}
           />
@@ -241,7 +241,7 @@ const GradientDescentContent: React.FC = () => {
             style={{
               height: "200px",
               width: "100%",
-              border: "1px solid #eee",
+              border: "1px solid #e2e8f0",
               borderRadius: "0.5rem",
             }}
           />
