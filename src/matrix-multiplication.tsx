@@ -1,5 +1,6 @@
 import React from "react";
 import { Formula, Provider, Custom, type Config } from "math-notation";
+import "math-notation/style.css";
 
 const inputVar = (defaultVal: number) => ({
   input: "drag" as const,

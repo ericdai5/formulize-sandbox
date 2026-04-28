@@ -6,6 +6,7 @@ import {
   Graph,
   type Config,
 } from "math-notation";
+import "math-notation/style.css";
 
 const config: Config = {
   formulas: [

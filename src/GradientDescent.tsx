@@ -9,6 +9,7 @@ import {
   type Config,
   type IGraph2D,
 } from "math-notation";
+import "math-notation/style.css";
 
 const combinedPlotConfig: IGraph2D = {
   id: "loss-gradient-plot",

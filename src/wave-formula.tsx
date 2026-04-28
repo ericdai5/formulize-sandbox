@@ -1,5 +1,6 @@
 import React from "react";
 import { Formula, Provider, Graph, type Config } from "math-notation";
+import "math-notation/style.css";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function amplitudeSvg(ctx: any) {

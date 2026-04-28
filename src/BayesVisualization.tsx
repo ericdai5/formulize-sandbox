@@ -9,6 +9,7 @@ import {
   InlineVariable,
   type Config,
 } from "math-notation";
+import "math-notation/style.css";
 
 const bayesConfig: Config = {
   formulas: [

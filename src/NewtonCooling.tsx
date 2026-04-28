@@ -9,6 +9,7 @@ import {
   type Config,
   type IGraph2D,
 } from "math-notation";
+import "math-notation/style.css";
 
 // Dynamic thermometer SVG generator functions that respond to variable values
 // Similar to jsGeneratedSVG.ts pattern - each function receives ctx with ctx.value

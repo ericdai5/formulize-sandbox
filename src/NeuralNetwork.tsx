@@ -11,6 +11,7 @@ import {
   type IFormula,
   type IVariablesUserInput,
 } from "math-notation";
+import "math-notation/style.css";
 
 /**
  * Neural Network Forward Pass Example
