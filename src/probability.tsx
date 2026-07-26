@@ -1,6 +1,6 @@
 import React from "react";
-import { Formula, Provider, type Config } from "math-notation";
-import "math-notation/style.css";
+import { Formula, Provider, type Config } from "delta-dsl";
+import "delta-dsl/style.css";
 
 const config: Config = {
   formulas: [

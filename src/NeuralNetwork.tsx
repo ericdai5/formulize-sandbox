@@ -10,8 +10,8 @@ import {
   type Config,
   type IFormula,
   type IVariablesUserInput,
-} from "math-notation";
-import "math-notation/style.css";
+} from "delta-dsl";
+import "delta-dsl/style.css";
 
 /**
  * Neural Network Forward Pass Example

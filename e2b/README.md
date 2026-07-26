@@ -25,7 +25,7 @@ sandbox) serves the dev server on port 5173; the host project iframes
 
    ```
    cd formulize-sandbox
-   npx tsx e2b/build.ts
+   npm run e2b:build
    ```
 
    This takes ~1–2 minutes. The script prints the template alias.
@@ -51,4 +51,6 @@ sandbox does the rest.
 ## Updating the template
 
 Whenever you change `e2b/project/*` (deps, vite config, scaffolding), rerun
-`npx tsx e2b/build.ts` to publish a new snapshot.
+`npm run e2b:build` to publish a new snapshot for the configured
+`E2B_TEMPLATE`. The build verifies that `delta-dsl` is installed, and the
+Vite plugin rejects stale templates with an actionable rebuild message.

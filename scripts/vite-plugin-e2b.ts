@@ -32,6 +32,7 @@ const SANDBOX_TIMEOUT_MS = 30 * 60 * 1000;
 const SANDBOX_HEALTHCHECK_TIMEOUT_MS = 5_000;
 const SANDBOX_TIMEOUT_REFRESH_BUFFER_MS = 60_000;
 const PROJECT_DIR = "/home/user/app";
+const REQUIRED_SANDBOX_DEPENDENCY = "delta-dsl";
 const DEFAULT_OPENAI_MODEL = "gpt-5.2";
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const MAX_ANALYSIS_FILE_CHARS = 5_000;
@@ -531,7 +532,7 @@ export function e2bPlugin(opts: E2bPluginOptions = {}): Plugin {
     if (sandboxPromise) return sandboxPromise;
     if (!template) {
       throw new Error(
-        "E2B_TEMPLATE env var is not set. Build the template via `npx tsx e2b/build.ts` and set E2B_TEMPLATE to the alias.",
+        "E2B_TEMPLATE env var is not set. Build the template via `npm run e2b:build` and set E2B_TEMPLATE to the alias.",
       );
     }
     if (!apiKey) {
@@ -542,6 +543,25 @@ export function e2bPlugin(opts: E2bPluginOptions = {}): Plugin {
         apiKey,
         timeoutMs: SANDBOX_TIMEOUT_MS,
       });
+      try {
+        await sbx.commands.run(
+          `npm ls ${REQUIRED_SANDBOX_DEPENDENCY} --depth=0`,
+          {
+            cwd: PROJECT_DIR,
+            timeoutMs: SANDBOX_HEALTHCHECK_TIMEOUT_MS,
+          },
+        );
+      } catch (err) {
+        try {
+          await sbx.kill();
+        } catch {
+          /* ignore cleanup errors */
+        }
+        throw new Error(
+          `E2B template "${template}" is missing ${REQUIRED_SANDBOX_DEPENDENCY}. Run \`npm run e2b:build\`, then restart the dev server.`,
+          { cause: err },
+        );
+      }
       rememberSandbox(sbx);
       console.log(`[e2b] sandbox ${sbx.sandboxId} booted, preview ${previewUrl}`);
       return sbx;
