@@ -403,8 +403,8 @@ YOUR RULES:
 3. If you are unsure about syntax, make your best guess based on what you know so far.
 4. The code should be a complete TypeScript/React file that uses the Formulize library.
 
-You are importing from "math-notation" which provides: Provider, Formula, StepControl, and the Config type.
-You must also import "math-notation/style.css" for the library's styles to apply.`;
+You are importing from "delta-dsl" which provides: Provider, Formula, StepControl, and the Config type.
+You must also import "delta-dsl/style.css" for the library's styles to apply.`;
 
 const QUERY_SYSTEM = `You are a code-writing AI that got stuck using the Formulize library.
 You just tried to use a construct and it didn't work.
@@ -517,8 +517,8 @@ export async function runSimulation(opts: SimulationOptions): Promise<void> {
 
   const exampleFile = "/gravitational-force.tsx";
 
-  let currentCode = `import { Formula, Provider, type Config } from "math-notation";
-import "math-notation/style.css";
+  let currentCode = `import { Formula, Provider, type Config } from "delta-dsl";
+import "delta-dsl/style.css";
 
 const config: Config = {
 };
@@ -617,7 +617,7 @@ Output the complete updated code with this construct added.`;
       try {
         const files: Record<string, string> = {
           [exampleFile]: guess,
-          "/App.tsx": `import Example from "./gravitational-force";\nimport "math-notation/style.css";\n\nexport default function App() {\n  return (\n    <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>\n      <Example />\n    </div>\n  );\n}\n`,
+          "/App.tsx": `import Example from "./gravitational-force";\nimport "delta-dsl/style.css";\n\nexport default function App() {\n  return (\n    <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>\n      <Example />\n    </div>\n  );\n}\n`,
           "/main.tsx": `import React from "react";\nimport { createRoot } from "react-dom/client";\nimport App from "./App";\n\nconst root = createRoot(document.getElementById("root")!);\nroot.render(<App />);\n`,
         };
         screenshotUrl = await screenshotFn(files);

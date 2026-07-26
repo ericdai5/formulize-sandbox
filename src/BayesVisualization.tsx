@@ -8,8 +8,8 @@ import {
   InlineFormula,
   InlineVariable,
   type Config,
-} from "math-notation";
-import "math-notation/style.css";
+} from "delta-dsl";
+import "delta-dsl/style.css";
 
 const bayesConfig: Config = {
   formulas: [
