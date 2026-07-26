@@ -9,6 +9,7 @@ import {
   InlineVariable,
   type Config,
 } from "math-notation";
+import "math-notation/style.css";
 
 const bayesConfig: Config = {
   formulas: [
@@ -424,7 +425,7 @@ const BayesProbabilityChart = Custom(({ vars }) => {
     <div className="mb-4">
       <div className="text-sm font-medium mb-2 text-gray-700">{label}</div>
       <div className="relative">
-        <svg width={600} height={10} className="border rounded">
+        <svg width={600} height={10} className="border border-slate-200 rounded">
           <rect width={600} height={10} fill="#f3f4f6" />
           <rect
             x={0}
@@ -464,7 +465,7 @@ const BayesProbabilityChart = Custom(({ vars }) => {
 
   return (
     <div className="bayes-probability-chart w-full h-full p-4 bg-slate-50 flex flex-col overflow-auto gap-3">
-      <div className="p-4 bg-white rounded-lg border">
+      <div className="p-4 bg-white rounded-lg border border-slate-200">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Drop Frequency: {(dropFrequency * 60).toFixed(0)} balls/sec
         </label>
@@ -508,17 +509,17 @@ const BayesProbabilityChart = Custom(({ vars }) => {
           ref={svgRef}
           width={CONFIG.width}
           height={CONFIG.height}
-          className="border border-gray-300 bg-white rounded-lg"
+          className="border border-slate-200 bg-white rounded-lg"
           viewBox={`0 0 ${CONFIG.width} ${CONFIG.height}`}
         />
       </div>
 
-      <div className="bg-white p-4 rounded-lg border">
+      <div className="bg-white p-4 rounded-lg border border-slate-200">
         <ProportionBar label="Expected" proportions={expectedProportions} />
         <ProportionBar label="Actual" proportions={actualProportions} />
       </div>
 
-      <div className="bg-white p-4 rounded-lg border">
+      <div className="bg-white p-4 rounded-lg border border-slate-200">
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
             <div

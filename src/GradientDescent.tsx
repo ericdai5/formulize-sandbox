@@ -9,31 +9,26 @@ import {
   type Config,
   type IGraph2D,
 } from "math-notation";
+import "math-notation/style.css";
 
 const combinedPlotConfig: IGraph2D = {
   id: "loss-gradient-plot",
   xAxisLabel: "w",
   xAxisVar: "w_t",
-  xRange: [-0.5, 2.5],
   yAxisVar: "L", // Primary y-axis (used as default)
   yAxisLabel: "L",
   yRange: [-5, 10], // Extended to show both loss (0-25) and gradient (-15 to 15)
-  xAxisPos: "center", // Center x-axis at y=0 so gradient line crosses it
-  yAxisPos: "edge",
-  xGrid: "show",
-  yGrid: "show",
-  width: 560,
-  height: 400,
   lines: [
     {
       sampleId: "loss",
       parameter: "w_t",
-      color: "#ef4444", // Red for loss (parabola)
+      color: "#ef4444",
+      interaction: ["horizontal-drag", "y"],
     },
     {
       sampleId: "gradient",
       parameter: "w_t",
-      color: "#f97316", // Orange for gradient (linear)
+      color: "#f97316",
     },
   ],
   points: [
@@ -42,6 +37,7 @@ const combinedPlotConfig: IGraph2D = {
       stepId: "weight-update",
       persistence: true,
       color: "#3b82f6", // Blue
+      interaction: ["horizontal-drag", "\\alpha"],
     },
   ],
 };
@@ -62,53 +58,38 @@ const gradientDescentConfig: Config = {
     },
   ],
   variables: {
-    // Index variable t (iteration number)
     t: {
-      input: "drag",
       name: "Iteration",
       default: 0,
       precision: 0,
     },
-    // t+1 index for the next weight
     "t+1": {
-      input: "drag",
       name: "Next Iteration",
       default: 1,
       precision: 0,
     },
-    // Loss and Gradient (computed at current w_t)
     L: { name: "Loss", precision: 4 },
     "\\nabla L": { name: "Gradient", precision: 4 },
-    // Current weight w_t (input, user can adjust starting point)
     w_t: {
       default: 0.5,
-      range: [-1, 4],
-      step: 0.05,
       name: "Current Weight",
-      precision: 3,
     },
-    // Next weight w_{t+1} (computed)
     "w_{t+1}": {
       name: "Next Weight",
-      precision: 4,
     },
-    // Learning rate
     "\\alpha": {
       input: "drag",
       default: 0.1,
       range: [0.01, 0.5],
       step: 0.01,
       name: "Learning Rate",
-      precision: 3,
     },
-    // Data inputs
     x: {
       input: "drag",
       default: 1.5,
       range: [0.5, 3],
       step: 0.1,
       name: "Input Feature x",
-      precision: 2,
     },
     y: {
       input: "drag",
@@ -116,7 +97,6 @@ const gradientDescentConfig: Config = {
       range: [1, 5],
       step: 0.1,
       name: "Target Value y",
-      precision: 2,
     },
   },
   stepping: true,
@@ -130,9 +110,15 @@ const gradientDescentConfig: Config = {
       var t_plus_1 = t + 1;
       var prediction = w_t * x;
       var error = y - prediction;
+      var L = error * error;
       step({
         "loss-function": {
-          description: "$Error = y - prediction = " + error.toFixed(2) + "$",
+          description:
+            "$Loss = Error^2 = (y - prediction)^2 = " +
+            error.toFixed(2) +
+            "^2 = " +
+            L.toFixed(2) +
+            "$",
           labels: {
             y: y,
             w_t: w_t,
@@ -140,16 +126,10 @@ const gradientDescentConfig: Config = {
           },
         },
       });
-      var L = error * error;
-      step({
-        "loss-function": {
-          description: "$Error^2 = " + L.toFixed(2) + "$",
-          labels: { L: L },
-        },
-      });
       sample("loss", { x: w_t, y: L });
       var nablaL = -2 * x * error;
       sample("gradient", { x: w_t, y: nablaL });
+      var stepSize = alpha * nablaL;
       step({
         "loss-function": {
           description: "$Error = y - prediction = " + error.toFixed(2) + "$",
@@ -173,9 +153,6 @@ const gradientDescentConfig: Config = {
               "$",
           },
         },
-      });
-      var stepSize = alpha * nablaL;
-      step({
         "update-rule": {
           labels: {
             "\\alpha": alpha,
@@ -246,7 +223,7 @@ const GradientDescentContent: React.FC = () => {
             style={{
               height: "200px",
               width: "100%",
-              border: "1px solid #eee",
+              border: "1px solid #e2e8f0",
               borderRadius: "0.5rem",
             }}
           />
@@ -255,7 +232,7 @@ const GradientDescentContent: React.FC = () => {
             style={{
               height: "200px",
               width: "100%",
-              border: "1px solid #eee",
+              border: "1px solid #e2e8f0",
               borderRadius: "0.5rem",
             }}
           />
@@ -264,7 +241,7 @@ const GradientDescentContent: React.FC = () => {
             style={{
               height: "200px",
               width: "100%",
-              border: "1px solid #eee",
+              border: "1px solid #e2e8f0",
               borderRadius: "0.5rem",
             }}
           />
